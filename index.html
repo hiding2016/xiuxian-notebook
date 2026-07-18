@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>修仙记事本</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    html { touch-action: manipulation; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                   "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+    }
+  </style>
+  <link rel="stylesheet" href="./assets/style.css" />
+</head>
+<body>
+  <div id="app">
+
+    <!-- 视图 1：开局 -->
+    <section id="view-start" class="view active">
+      <div class="start-scroll">
+        <header class="hero">
+          <div class="hero-seal">修仙</div>
+          <h1>修仙记事本</h1>
+          <p class="hero-sub">一介凡人的修行手记。这一程，能否筑基成功？</p>
+        </header>
+
+        <button id="btn-continue" class="btn btn-primary btn-block hidden" type="button">继续修行</button>
+
+        <div id="past-life" class="past-life hidden">
+          <div class="past-life-title">上一次修行</div>
+          <div id="past-life-body" class="past-life-body"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">第一步 · 测先天机缘</div>
+          <div class="talent-row">
+            <div id="talent-card" class="talent-card empty">
+              <span id="talent-name">？？？</span>
+              <span id="talent-desc">点击下方按钮，测你的先天机缘</span>
+            </div>
+            <button id="btn-roll-talent" class="btn btn-ghost" type="button">测机缘</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">第二步 · 分配先天天赋</div>
+          <div class="points-left">剩余点数 <b id="points-left">200</b></div>
+          <div id="attr-list" class="attr-list"></div>
+          <button id="btn-random-attrs" class="btn btn-ghost btn-block" type="button">听天由命（随机分配）</button>
+        </div>
+
+        <button id="btn-start" class="btn btn-primary btn-block btn-start" type="button" disabled>踏入仙途</button>
+        <p class="start-tip">先测机缘，再分配完所有天赋点</p>
+        <p class="start-tip dim">当前版本开放至「筑基期」，筑基后的修为与物资会自动存档，后续版本可继续修行</p>
+      </div>
+    </section>
+
+    <!-- 视图 2：修行 -->
+    <section id="view-life" class="view">
+      <div class="life-top">
+        <div class="life-top-row">
+          <div class="age-display"><span id="age-num">12</span><em>岁</em></div>
+          <div class="realm-display">
+            <span id="realm-name" class="realm-name">炼气期</span>
+            <div class="cult-bar"><div class="cult-fill" id="cult-fill"></div></div>
+            <span id="cult-num" class="cult-num">0/100</span>
+          </div>
+        </div>
+        <div id="life-attrs" class="life-attrs"></div>
+        <div id="life-inv" class="life-attrs"></div>
+        <div id="life-bp" class="backpack"></div>
+      </div>
+      <div id="life-log" class="life-log"></div>
+      <div class="life-bottom">
+        <button id="btn-speed" class="btn btn-ghost" type="button">速度 ×1</button>
+        <button id="btn-pause" class="btn btn-ghost" type="button">暂停</button>
+      </div>
+    </section>
+
+    <!-- 抉择/突破弹窗 -->
+    <div id="choice-mask" class="choice-mask hidden">
+      <div class="choice-card">
+        <div id="choice-text" class="choice-text"></div>
+        <div id="choice-btns" class="choice-btns"></div>
+      </div>
+    </div>
+
+    <!-- 视图 3：道途总结卡 -->
+    <section id="view-end" class="view">
+      <div class="end-scroll">
+        <div id="end-card" class="end-card">
+          <div class="end-card-head">
+            <div class="end-seal">道</div>
+            <div class="end-title-wrap">
+              <div class="end-label">本次修行 · 道途总结</div>
+              <h2 id="end-title">—</h2>
+            </div>
+          </div>
+          <div class="end-age" id="end-age">修行 — 年</div>
+          <div class="end-attrs" id="end-attrs"></div>
+          <div class="end-section">
+            <div class="end-section-title">道途名场面</div>
+            <ul id="end-highlights" class="end-highlights"></ul>
+          </div>
+          <div class="end-comment" id="end-comment"></div>
+          <div class="end-footer">修仙记事本 · 截图分享你的仙途手记</div>
+        </div>
+        <div class="end-actions">
+          <button id="btn-restart" class="btn btn-primary btn-block" type="button">重新修行</button>
+          <p class="end-tip">长按截图，把你的仙途晒到小红书 📸</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+  <script src="./assets/data.js"></script>
+  <script src="./assets/main.js"></script>
+</body>
+</html>
