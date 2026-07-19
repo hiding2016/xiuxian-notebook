@@ -116,22 +116,20 @@ function renderPastLife() {
   } catch (e) { /* 数据损坏则忽略 */ }
   var sv = loadSave();
   var btn = $("btn-continue");
-  // v1 通关档（筑基·功成名就）可从筑基期继续；v2 结丹通关档封顶——显示提示
-  if (sv && typeof sv.age === "number") {
-    var capped = sv.flags && sv.flags["功成名就"] && sv.realmIdx >= 2;
-    var canContinue = !(sv.flags && sv.flags["功成名就"]) || sv.realmIdx === 1;
+  // v1 通关档（筑基·功成名就）可从筑基期继续；结丹通关档暂封顶
+  var capped = sv && sv.flags && sv.flags["功成名就"] && sv.realmIdx >= 2;
+  var canContinue = sv && typeof sv.age === "number" &&
+    (!(sv.flags && sv.flags["功成名就"]) || sv.realmIdx === 1);
+  if (canContinue) {
     btn.classList.remove("hidden");
-    if (capped) {
-      btn.textContent = "已达版本上限（结丹期）· 等待新版本";
-      btn.disabled = true;
-    } else {
-      btn.textContent = "继续修行（" + (sv.age + STORY_BASE) + " 岁 · " +
-        (sv.realmIdx >= 2 ? "结丹期" : sv.realmIdx === 1 ? "筑基期" : "炼气期") + "）";
-      btn.disabled = false;
-    }
+    btn.textContent = "继续修行（" + (sv.age + STORY_BASE) + " 岁 · " +
+      (sv.realmIdx >= 2 ? "结丹期" : sv.realmIdx === 1 ? "筑基期" : "炼气期") + "）";
   } else {
     btn.classList.add("hidden");
   }
+  // 封顶提示：写在「上一次修行」框里，小字，不抢眼
+  var cap = $("past-life-cap");
+  if (cap) cap.classList.toggle("hidden", !capped);
 }
 
 /* =========================================================

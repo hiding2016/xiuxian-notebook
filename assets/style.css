@@ -95,6 +95,7 @@ body {
 }
 .past-life-title { font-size: 12px; color: var(--gold); font-weight: 700; letter-spacing: 3px; }
 .past-life-body { margin-top: 6px; font-size: 13px; color: var(--ink-soft); line-height: 1.6; }
+.past-life-cap { margin-top: 4px; font-size: 11px; color: #ab9f87; }
 
 .panel {
   margin-top: 18px;
