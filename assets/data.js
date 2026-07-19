@@ -88,19 +88,19 @@ window.GAME_DATA = {
 
     /* ================= 入门童年（1-10年） ================= */
     { id: "kid_zama", type: "daily", cat: "xiulian", layers: [1, 4], cooldown: 4, text: "每日天不亮就起来扎马步、挑水。师兄说，根基都是这么熬出来的。", effect: { attrs: { "根骨": 1 } } },
-    { id: "kid_shizi", type: "flavor", cat: "xiulian", layers: [1, 3], cooldown: 6, text: "老修士教你们认字：「道经三千，先识字，再识道。」" },
+    { id: "kid_shizi", type: "flavor", cat: "xiulian", layers: [1, 3], cooldown: 6, text: "老修士教你们认字：「道经三千，先识字，然后再识道。」" },
     { id: "kid_daza", type: "daily", cat: "ziyuan", layers: [1, 4], cond: { notFlag: "散修" }, cooldown: 4, text: "你在膳堂帮厨，劈柴烧火一个月，管事赏了你一块灵石。", effect: { inv: { "灵石": 1 } } },
-    { id: "kid_sleep", type: "flavor", cat: "xiulian", layers: [1, 5], cooldown: 6, text: "讲法课上你睡着了，被戒尺敲了三下。屁股疼，但梦很甜。" },
+    { id: "kid_sleep", type: "flavor", cat: "xiulian", layers: [1, 5], cooldown: 6, text: "讲法课上你睡着了，被戒尺敲了三下。屁股摔得生疼，但梦做得格外甜。" },
     { id: "kid_play", type: "flavor", cat: "renji", layers: [1, 4], cooldown: 6, cond: { notFlag: "散修" }, text: "你和邻铺的弟子偷溜下山，买了串糖葫芦。回门时被抓，罚扫三天台阶。" },
     { id: "kid_body", type: "daily", cat: "xiulian", layers: [1, 5], cooldown: 5, text: "晨跑三十里，你咬着牙跑完了全程。感觉筋骨结实了一点。", effect: { attrs: { "根骨": 1 } } },
     /* ================= 新手期 1-4 层 ================= */
     /* 修炼 */
     { id: "a_tuna", type: "daily", cat: "xiulian", layers: [1, 4], cooldown: 4, weight: 1.2, text: "你在蒲团上吐纳一夜，灵气在经脉里多转了三个周天。" },
     { id: "a_gongfa", milestone: 1, type: "daily", cat: "xiulian", layers: [1, 1], cond: { notFlag: "散修" }, text: "传功堂发下基础功法《引气诀》。你翻了一夜，还是似懂非懂。" },
-    { id: "a_gongfa_san", milestone: 1, type: "daily", cat: "xiulian", layers: [1, 1], cond: { flag: "散修" }, text: "你捧着那半本残诀，一个字一个字地啃。没人教，就自己悟。" },
+    { id: "a_gongfa_san", milestone: 1, type: "daily", cat: "xiulian", layers: [1, 1], cond: { flag: "散修" }, text: "你捧着那半本残诀，一个字一个字地啃。没人教，那就自己悟。" },
     { id: "a_gongfa2", type: "daily", cat: "xiulian", layers: [1, 3], cond: { min: { "悟性": 60 } }, text: "《引气诀》你三天就吃透了，还挑出两处错漏。传功师兄表情复杂。", effect: { attrs: { "悟性": 3 } } },
     { id: "a_slow", type: "daily", cat: "xiulian", layers: [1, 4], cond: { max: { "灵根": 40 } }, text: "灵气入体如泥牛入海。你终于明白，灵根差，是什么意思。" },
-    { id: "a_fast", type: "daily", cat: "xiulian", layers: [1, 4], cond: { min: { "灵根": 70 } }, text: "灵气争先恐后往你体内钻。隔壁铺的师兄酸了：「人比人，气死人。」", effect: { attrs: { "气运": 2 } } },
+    { id: "a_fast", type: "daily", cat: "xiulian", layers: [1, 4], cond: { min: { "灵根": 70 } }, text: "灵气争先恐后往你体内钻。隔壁铺的师兄酸了：「人比人，真能气死人。」", effect: { attrs: { "气运": 2 } } },
     { id: "a_zhoutian", type: "daily", cat: "xiulian", layers: [2, 5], cooldown: 5, text: "你第一次完整运行大周天，收功时东方既白，浑身说不出的舒坦。" },
     /* 资源 */
     { id: "a_lingtian", type: "daily", cat: "ziyuan", layers: [1, 5], cond: { notFlag: "散修" }, cooldown: 4, text: "灵田除草三日，换五块灵石。腰快断了，但储物袋沉了一点。", effect: { inv: { "灵石": 5 } } },
@@ -178,7 +178,7 @@ window.GAME_DATA = {
 
     /* ================= 圆满期 10-13 层 ================= */
     { id: "c_ningyuan", type: "daily", cat: "xiulian", layers: [10, 13], cooldown: 4, text: "真元在丹田凝成液滴，距离圆满又近一分。" },
-    { id: "c_leijie_yugan", type: "daily", cat: "xiulian", layers: [11, 13], cooldown: 6, text: "夜里你隐隐感到天威——雷劫不远了。既期待，又害怕。" },
+    { id: "c_leijie_yugan", type: "daily", cat: "xiulian", layers: [11, 13], cooldown: 6, text: "夜里你隐隐感到天威——雷劫不远了。既期待，又有些害怕。" },
     { id: "c_zhidao", type: "chance", cat: "renji", layers: [10, 13], cond: { notFlag: "散修", min: { "灵根": 60 } }, text: "筑基期师叔讲法，一句「真元九转，方可叩关」让你少走三年弯路。", effect: { attrs: { "悟性": 5 } } },
     { id: "c_auction", type: "daily", cat: "ziyuan", layers: [9, 13], cooldown: 6, text: "拍卖会上，一枚筑基丹被抬到一百二十灵石。你摸了摸口袋，沉默了好一会儿。" },
     { id: "c_zhunbei", type: "daily", cat: "ziyuan", layers: [10, 13], cooldown: 5, text: "你开始为筑基盘点家底：灵石、丹药、护身符。一样都不能少。" },
@@ -347,7 +347,7 @@ window.GAME_DATA = {
       text: "师兄找你借二十灵石应急，说下月必还。他眼神闪躲。",
       choices: [
         { text: "借", sub: "谁没个难处", cond: { inv: { "灵石": 20 } }, outcomes: [
-          { weight: 7, result: "三个月后他真的还了，还多给五块利息。这师兄，能处。", effect: { inv: { "灵石": 5 }, attrs: { "气运": 3 } } },
+          { weight: 7, result: "三个月后他真的还了，还多给五块利息。这位师兄，值得你去深交。", effect: { inv: { "灵石": 5 }, attrs: { "气运": 3 } } },
           { weight: 3, result: "三个月后师兄人间蒸发。二十灵石，看清一个人。", effect: { inv: { "灵石": -20 } } }
         ] },
         { text: "不借", sub: "亲兄弟明算账", result: "你拒绝了。后来听说他去借了高利，被追债追得满山跑。" }
@@ -362,7 +362,7 @@ window.GAME_DATA = {
       text: "黑袍人拦住你：「正道太慢了。跟我修魔，保你十年筑基。考虑吗？」",
       choices: [
         { text: "堕入魔道", sub: "进境飞快，人人喊打", result: "你接过那枚漆黑的玉简。从此，世间少了个正道修士。", effect: { flag: "魔修", attrs: { "灵根": 10, "气运": -10 } } },
-        { text: "严词拒绝", sub: "道心不可移", result: "「滚。」黑袍人笑了：「有骨气，可惜。」你后背湿透，但道心更稳。", effect: { attrs: { "神识": 5 } } }
+        { text: "严词拒绝", sub: "道心不可移", result: "「滚。」黑袍人笑了：「有几分骨气，只是可惜了。」你后背湿透，但道心更稳。", effect: { attrs: { "神识": 5 } } }
       ] },
 
     /* ================= 抉择：劫数年 ================= */
@@ -469,7 +469,7 @@ window.GAME_DATA = {
     { id: "fb_lianqi_shi", minAge: 14, type: "chance", cat: "ziyuan", layers: [6, 12], cond: { artifactMax: { "法器": 0 } },
       text: "炼器房长老缺个试器的人：「帮我试炉，成了，这把新出炉的法器归你。」",
       choices: [
-        { text: "试", sub: "有风险，但有法器", result: "炉火炸了三次，第四次，法器出炉。长老依约把剑丢给你。", effect: { artifact: { "法器": 1 }, attrs: { "根骨": -3 } } },
+        { text: "试", sub: "有风险，但有法器", result: "炉火炸了三次，第四次，法器终于出炉。长老依约把剑丢给你。", effect: { artifact: { "法器": 1 }, attrs: { "根骨": -3 } } },
         { text: "不试", sub: "命要紧", result: "你婉拒了。长老耸耸肩，转身找了别人。" }
       ] },
     { id: "fb_huzhu", type: "daily", cat: "zhandou", layers: [5, 13], cond: { artifact: { "法器": 1 } }, cooldown: 6,
@@ -649,7 +649,7 @@ window.GAME_DATA = {
     { id: "mj_fake", type: "trib", cat: "jiyuan", layers: [5, 12], cond: { notFlag: "清醒", notFlag2: "魔修" },
       text: "「前辈洞府大开，见者有份！」消息传得有鼻子有眼，你跟着人潮赶去——却是个专坑散修的局。",
       choices: [
-        { text: "交出灵石保命", sub: "破财免灾", result: "你交出十块灵石才被放行。这学费，交得心疼。", effect: { inv: { "灵石": -10 } } },
+        { text: "交出灵石保命", sub: "破财免灾", result: "你交出十块灵石才被放行。这学费，交得钱包都疼。", effect: { inv: { "灵石": -10 } } },
         { text: "硬闯出去", sub: "战力 70+ 有胜算", cond: { combatMin: 70 }, result: "你掀翻了两个拦路的，随后扬长而去。坑散修？找错人了。", effect: { attrs: { "气运": 3 } } }
       ] },
 
@@ -657,7 +657,7 @@ window.GAME_DATA = {
     { id: "zj_neimen", type: "daily", cat: "renji", layers: [1, 13], cond: { flag: "筑基", notFlag: "散修" }, cooldown: 5, text: "筑基之后，外门弟子见你都要躬身喊一声「师叔」。" },
     /* ================= 师徒线（筑基后） ================= */
     { id: "zj_shoutu", type: "chance", cat: "renji", layers: [1, 13], cond: { flag: "筑基" }, chain: "tud_1", highlight: true, text: "你收了个小徒弟。看着TA笨手笨脚引气入体，你想起当年的自己。" },
-    { id: "tud_2", type: "daily", cat: "renji", layers: [1, 13], cond: { flag: "筑基" }, chain: "tud_2", weight: 3, cooldown: 3, text: "你教徒弟打坐吐纳，TA三天跑偏了两次。当师父，比修炼累。" },
+    { id: "tud_2", type: "daily", cat: "renji", layers: [1, 13], cond: { flag: "筑基" }, chain: "tud_2", weight: 3, cooldown: 3, text: "你教徒弟打坐吐纳，TA三天跑偏了两次。当师父，可比修炼累多了。" },
     { id: "tud_2b", type: "daily", cat: "renji", layers: [1, 13], cond: { flag: "筑基" }, chain: "tud_2", weight: 3, cooldown: 3, text: "徒弟悟性不错，一点就能透。你嘴上骂TA骄傲，心里偷着乐。", effect: { attrs: { "气运": 2 } } },
     { id: "tud_3", type: "trib", cat: "renji", layers: [1, 13], cond: { flag: "筑基" }, chain: "tud_3", weight: 3,
       text: "徒弟偷偷下山，在坊市被人坑了，还打坏了人家的摊子。对方找上门来要说法。",
@@ -682,7 +682,7 @@ window.GAME_DATA = {
     { id: "zj_talk", type: "flavor", cat: "renji", layers: [1, 13], cond: { flag: "筑基" }, cooldown: 6, text: "你与几位筑基同阶坐而论道，谈及结丹大道，都摇头苦笑：难。" },
     { id: "zj_watch", type: "flavor", cat: "xinjing", layers: [1, 13], cond: { flag: "筑基" }, cooldown: 7, text: "你站在峰顶看云海翻腾。长生路远，但风景正好。" },
     { id: "zj_lingshi", type: "daily", cat: "ziyuan", layers: [1, 13], cond: { flag: "筑基" }, cooldown: 5, text: "你给门下弟子讲了一堂法，宗门发的补贴到账了。", effect: { inv: { "灵石": 10 } } },
-    { id: "zj_linghu2", type: "miracle", cat: "jiyuan", layers: [1, 13], cond: { flag: "筑基", flag2: "灵兽" }, chain: "linghu_2", highlight: true, text: "灵狐忽然衔来一株发光的灵草放在你手心。小家伙，会寻宝了。", effect: { inv: { "灵石": 28 } } },
+    { id: "zj_linghu2", type: "miracle", cat: "jiyuan", layers: [1, 13], cond: { flag: "筑基", flag2: "灵兽" }, chain: "linghu_2", highlight: true, text: "灵狐忽然衔来一株发光的灵草放在你手心。小家伙，学会寻宝了。", effect: { inv: { "灵石": 28 } } },
 
     /* ================= 筑基期 · 丹毒抉择（耐药钩子，引擎队列触发） ================= */
     { id: "zb_dandu", type: "trib", cat: "xiulian", realms: [1], highlight: true,
@@ -800,7 +800,7 @@ window.GAME_DATA = {
     text: "钱庄的伙计第三次上门了，这次带了两个炼体修士：「道友，本息一百五，掌柜说今日要个准话。」",
     choices: [
       { text: "连本带息还清", sub: "灵石 -150", cond: { inv: { "灵石": 150 } }, result: "你凑齐了灵石。伙计点钱的样子很斯文，你的心在滴血。债，清了。", effect: { inv: { "灵石": -150 }, flag: "债清" } },
-      { text: "先还四十，剩下的拖", sub: "灵石 -40，挨顿教训", result: "你被「请」到后巷谈了谈，鼻青脸肿地掏出四十灵石。剩下的，宽限三月。", effect: { inv: { "灵石": -40 }, attrs: { "根骨": -5 } } }
+      { text: "先还四十，剩下的拖", sub: "灵石 -40，挨顿教训", result: "你被「请」到后巷谈了谈，鼻青脸肿地掏出四十灵石。剩下的，宽限你三个月。", effect: { inv: { "灵石": -40 }, attrs: { "根骨": -5 } } }
     ] },
 
   // ==================== 法（12） ====================
@@ -939,7 +939,7 @@ window.GAME_DATA = {
         { weight: 6, result: "你疼出一身透汗，淤塞的经脉竟被冲开一线。旧伤，轻了三分。", effect: { attrs: { "根骨": 2 } } },
         { weight: 4, result: "淤堵没冲开，反而牵动了内伤。你躺了半个月。", effect: { attrs: { "根骨": -4 } } }
       ] },
-      { text: "去药堂调理", sub: "灵石 -80，贵但稳", cond: { inv: { "灵石": 80 } }, result: "药堂的老医师给你灸了七次，收了八十灵石。伤好了，钱包瘪了。", effect: { inv: { "灵石": -80 }, attrs: { "根骨": 3 } } }
+      { text: "去药堂调理", sub: "灵石 -80，贵但稳", cond: { inv: { "灵石": 80 } }, result: "药堂的老医师给你灸了七次，收了八十灵石。伤是好了，钱包却瘪了。", effect: { inv: { "灵石": -80 }, attrs: { "根骨": 3 } } }
     ] },
   { id: "zb_yaoshou", type: "daily", cat: "zhandou", realms: [1], cooldown: 6,
     text: "一头三阶妖兽半夜袭山，撞碎了两户山民的屋顶。你赶在天亮前斩了它，妖丹和山民凑的谢礼，你都收下了。", effect: { inv: { "灵石": 45 }, attrs: { "根骨": 3 } } },
@@ -992,7 +992,7 @@ window.GAME_DATA = {
 
   // ================= 长老赏识链·第2环 =================
   { id: "shitu_2", type: "chance", cat: "renji", realms: [1], chain: "shitu_2", cond: { notFlag: "散修" },
-    text: "那位长老把你叫到静室，推过来一只丹瓶：「凝元丹，拿去。结丹的事，也该早做打算了。」",
+    text: "那位长老把你叫到静室，推过来一只丹瓶：「这瓶凝元丹，拿去补补身子。结丹的事，也该早做打算了。」",
     choices: [
       { text: "收下丹药", sub: "凝元丹 +1", result: "你躬身收下。长老摆摆手：「好好练，别学你那些师叔，练到半路就躺平。」", effect: { inv: { "凝元丹": 1 } } },
       { text: "求结金丹的线索", sub: "丹比消息好打，消息难寻", result: "长老沉吟半晌，写了一张字条给你：何处有丹方风声，何处有老丹师隐居。字字值钱。", effect: { flag: "结金丹线索", attrs: { "悟性": 3 } } }
@@ -1094,7 +1094,7 @@ window.GAME_DATA = {
     text: "跑熟了南北两条商路，哪家的灵米便宜、哪家的符咒靠谱，你都门儿清。低买高卖，图个细水长流。",
     effect: { flag: "商路", inv: { "灵石": 40 } } },
   { id: "sxd_2b", type: "daily", cat: "ziyuan", realms: [1], chain: "sxd_2", cooldown: 6, cond: { flag: "散修", flag2: "商路" },
-    text: "商路上的老主顾又来光顾，顺手给你带了外地的行情。这一季，进项不错。",
+    text: "商路上的老主顾又来光顾，顺手给你带了外地的行情。这一季，进项还算不错。",
     effect: { inv: { "灵石": 35 } } },
   { id: "sxd_3", type: "chance", cat: "renji", realms: [1], chain: "sxd_3", cond: { flag: "散修" },
     text: "十几位相熟的散修在你院里歃血为盟，约好互通有无、守望相助。散修抱团，也算是半个门派了。",
@@ -1157,7 +1157,7 @@ window.GAME_DATA = {
   { id: "zb_jd_shouyuan", minAge: 70, type: "trib", cat: "xinjing", realms: [1], cooldown: 15,
     text: "你对着铜镜拔下一根白发。又算了算寿元——结丹这道坎再迈不过去，往后就只剩坐化一条路了。", effect: { attrs: { "气运": -2 } } },
   { id: "zb_jd_xinde", type: "daily", cat: "renji", realms: [1], cooldown: 6,
-    text: "几位筑基后期围炉夜话，轮到结丹心得，人人说得含糊。真东西，谁肯白给。",
+    text: "几位筑基后期围炉夜话，轮到结丹心得，人人说得含糊。真东西，谁肯白给你。",
     choices: [
       { text: "花灵石买一份手抄心得", sub: "灵石 -60，真假难说", cond: { inv: { "灵石": 60 } }, outcomes: [
         { weight: 6, result: "心得是真货。你逐句琢磨了三夜，几处关隘豁然开朗。", effect: { inv: { "灵石": -60 }, attrs: { "悟性": 4 } } },
@@ -1221,7 +1221,7 @@ window.GAME_DATA = {
     choices: [
       { text: "收下贺礼", sub: "正邪两道都看着", outcomes: [
         { weight: 5, result: "匣子里是一百灵石，这份礼很正。你收下了，也记下这个人情。", effect: { inv: { "灵石": 100 } } },
-        { weight: 5, result: "匣子里是颗魔珠，煞气很是刺手。你不动声色合上盖子，这东西，烫手。", effect: { attrs: { "气运": -3 } } }
+        { weight: 5, result: "匣子里是颗魔珠，煞气很是刺手。你不动声色合上盖子，这东西，拿着实在烫手。", effect: { attrs: { "气运": -3 } } }
       ] },
       { text: "拱手谢绝", sub: "不沾因果", result: "你笑着把礼盒推了回去。那魔修也不恼，饮尽一杯，便飘然去了。" }
     ] },
@@ -1723,7 +1723,7 @@ window.GAME_DATA = {
   endings: [
     { cond: { flag: "功成名就", flag2: "一品金丹" }, title: "金丹大道 · 一品天成", comment: "一粒金丹吞入腹，始知我命不由天。结丹大典上，连元婴老祖都多看了你两眼。长生路远，你才刚刚上路。" },
     { cond: { flag: "功成名就", flag2: "魔修" }, title: "魔丹噬道 · 我行我素", comment: "正道的光没能照到你，你索性自己成了光——虽然是黑的那种。魔丹一成，天地任你走。" },
-    { cond: { flag: "功成名就", flag2: "假丹" }, title: "假丹苦涩 · 道途多舛", comment: "丹成了，却是假的。庆贺的宴席上你笑着敬酒，只有自己知道丹田里那丝涩意。有人说假丹也有春天——你打算找找看。" },
+    { cond: { flag: "功成名就", flag2: "假丹" }, title: "假丹苦涩 · 道途多舛", comment: "丹成了，可惜却是假的。庆贺的宴席上你笑着敬酒，只有自己知道丹田里那丝涩意。有人说假丹也有春天——你打算找找看。" },
     { cond: { flag: "功成名就" }, title: "真丹凝就 · 道基稳固", comment: "从炼气到结丹，你走了大半生。真丹一成，寿元五百，仙途终于不再遥不可及。洞府外云海翻腾，像极了你十二岁那年看过的那片。" },
     { cond: { flag: "走火未愈" }, title: "走火入魔 · 道消身殒", comment: "心魔最终还是赢了。道友们为你送行时说：TA本可以走得更远的。下一局，神识多加点。" },
     { cond: { flag: "魔修" }, title: "魔道妖人 · 我行我素", comment: "正道的光没能照到你，但你也活成了传说——虽然是吓小孩的那种。魔道也是道，你认，就好。" },

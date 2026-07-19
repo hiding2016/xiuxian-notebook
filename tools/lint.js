@@ -143,8 +143,8 @@ const scanText = JSON.stringify(D.events) + JSON.stringify(D.endings) + JSON.str
 for (const w of BANNED) if (scanText.includes(w)) err("红线词出现: " + w);
 
 /* ---------- 断句句式（作者点名单重，禁） ---------- */
-const BADPAT = /[一-龥]{4,5}，[一-龥]{1,4}。/;
-if (BADPAT.test(scanText)) err("断句句式（前4-5字逗号后1-4字）出现，见体验修复第二轮");
+const BADPAT = /[一-龥]{3,5}，[一-龥]{1,4}。/;
+if (BADPAT.test(scanText)) err("断句句式（前3-5字逗号后1-4字）出现，见体验修复第二轮");
 
 /* ---------- 统计 ---------- */
 const byType = {};
