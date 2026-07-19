@@ -215,12 +215,10 @@ function renderLifeAttrs() {
   combat.className = "life-attr combat";
   combat.innerHTML = "战力 <b>" + computeCombat() + "</b>";
   ibox.appendChild(combat);
-  ["灵石"].concat(PILL_SLOTS).forEach(function (n) {
-    var chip = document.createElement("span");
-    chip.className = "life-attr inv";
-    chip.innerHTML = n + " <b>" + fmtNum(S.inv[n] || 0) + "</b>";
-    ibox.appendChild(chip);
-  });
+  var money = document.createElement("span");
+  money.className = "life-attr inv";
+  money.innerHTML = "灵石 <b>" + fmtNum(S.inv["灵石"] || 0) + "</b>";
+  ibox.appendChild(money);
   var gf = document.createElement("span");
   gf.className = "life-attr inv";
   gf.innerHTML = "功法 <b>" + GONGFA_NAMES[S.gongfa] + "</b>";

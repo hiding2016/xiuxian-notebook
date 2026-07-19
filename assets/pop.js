@@ -253,6 +253,7 @@ function resolveTiming(pos) {
 
 function closeInteractive() {
   $("choice-mask").classList.add("hidden");
+  $("choice-minilog").classList.add("hidden");
   S.waitingChoice = false;
   S.pendingChoice = null;
 }
@@ -281,6 +282,16 @@ function showDungeonNode() {
   var opts = node.choices.filter(function (c) { return condOk(c.cond, S.attrs, S.flags, S.inv); });
   if (!opts.length) { exitDungeon("你找不到可行的路，只得退了出来。"); return; }
   $("choice-text").textContent = "【" + d.name + " · 第" + (S.dg.depth + 1) + "层】" + node.text;
+  // 卡顶迷你时间线：秘境连续选择时剧情不断线
+  var ml = $("choice-minilog");
+  ml.innerHTML = "";
+  S.logs.slice(-3).forEach(function (l) {
+    var li = document.createElement("div");
+    li.className = "minilog-item" + (l.c ? " " + l.c : "");
+    li.textContent = l.a + "岁 · " + l.t;
+    ml.appendChild(li);
+  });
+  ml.classList.remove("hidden");
   showHints(node.text);
   renderOpts(opts, function (o) { resolveDgChoice(o); });
 }
@@ -384,7 +395,7 @@ function showZhuji() {
   opts.push({ text: "人道筑基 · 硬撼雷劫", sub: "成功率 " + Math.round(pHard * 100) + "% · 失败退回 11 层", p: pHard });
   opts.push({ text: "再积蓄几年", sub: "暂缓突破，修为继续沉淀", p: -1 });
 
-  var text = S.age + " 年 · 炼气十三层圆满，筑基雷劫已至！天上乌云翻涌，雷光隐现。如何渡劫？";
+  var text = S.age + " 年 · 炼气十三层圆满，筑基雷劫已至！天上乌云翻涌，隐有雷光游走。如何渡劫？";
   $("choice-text").textContent = text;
   log(text, "highlight");
   showHints("筑基丹 灵髓 地火莲 天雷竹 灵器 法宝");
@@ -399,7 +410,7 @@ function heartDemonP() {
 
 function showHeartDemon() {
   var p = heartDemonP();
-  var text = S.age + " 年 · 筑基圆满，结丹在望。然而丹成之前，心魔先至——识海深处，无数声音质问你这一生的选择。";
+  var text = S.age + " 年 · 筑基既已圆满，结丹之日近在眼前。然而丹成之前，心魔先至——识海深处，无数声音质问你这一生的选择。";
   $("choice-text").textContent = text;
   log(text, "highlight");
   showHints("神识 心魔已除 走火入魔");
@@ -473,7 +484,7 @@ function resolveBreakthrough(o) {
       S.cult = 0;
       S.flags["筑基"] = true;
       S.lifespan += 130;
-      log("雷劫落尽，灵台生光。筑基成功！寿元 +130，从此你才算真正踏入仙途。", "highlight");
+      log("雷劫落尽，灵台一片澄明。筑基成功！寿元 +130，从此你才算真正踏入仙途。", "highlight");
       S.highlights.push(S.age + " 年，渡劫成功，踏入筑基期！");
       settleQiItems();
     } else {
@@ -527,12 +538,12 @@ function applyJindan(grade) {
     S.highlights.push(S.age + " 年，天道结丹，一品金丹！");
   } else if (grade === 2) {
     ["灵根", "悟性", "神识"].forEach(function (a) { S.attrs[a] = clampAttr(S.attrs[a] + 5); });
-    log("雷劫落尽，真丹凝就，道基稳固。寿元 +250。", "highlight");
-    S.highlights.push(S.age + " 年，地道结丹，真丹凝就。");
+    log("雷劫落尽，真丹凝就，道基前所未有的稳固。寿元 +250。", "highlight");
+    S.highlights.push(S.age + " 年，地道结丹，真丹就此凝成。");
   } else {
     S.flags["假丹"] = true;
     ["灵根", "根骨"].forEach(function (a) { S.attrs[a] = clampAttr(S.attrs[a] + 3); });
     log("雷劫落尽，丹成却黯淡无光——是一颗假丹。寿元 +250，但你心里清楚，往后的路难了。", "highlight");
-    S.highlights.push(S.age + " 年，硬闯雷劫，结成假丹。");
+    S.highlights.push(S.age + " 年，硬闯雷劫，丹成只是假丹。");
   }
 }

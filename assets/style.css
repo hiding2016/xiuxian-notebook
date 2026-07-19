@@ -304,6 +304,36 @@ body {
 }
 .log-more:active { opacity: .6; }
 
+/* 道途终结条：不自动跳页，让用户先回看时间线 */
+.end-bar {
+  position: absolute;
+  left: 16px; right: 16px;
+  bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  z-index: 8;
+  animation: sheetUp .3s ease;
+}
+
+/* 弹卡顶部迷你时间线（秘境连续选择用） */
+.choice-minilog {
+  margin: -6px 0 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.minilog-item {
+  font-size: 11px;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.minilog-item.highlight { color: #6b4e07; font-weight: 700; }
+.minilog-item.choice-result { color: var(--gold); }
+.minilog-item.death { color: var(--red-deep); }
+
 .life-bottom {
   display: flex; gap: 10px;
   padding: 10px 16px calc(12px + env(safe-area-inset-bottom, 0px));

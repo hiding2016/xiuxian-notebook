@@ -7,11 +7,11 @@
 function finishWin() {
   S.flags["功成名就"] = true;
   stopTimer();
-  log("结丹大典，八方来贺。你站在高台上，想起十二岁那年第一次引气入体。这一程修行，功成名就。", "highlight");
-  S.highlights.push(S.age + " 年，结丹大典，功成名就。");
+  log("结丹大典那日，八方修士来贺。你站在高台上，想起十二岁那年第一次引气入体。这一程修行，就此功成名就。", "highlight");
+  S.highlights.push(S.age + " 年，结丹大典，就此功成名就。");
   saveGame(); // 保留存档：v3 可从结丹继续
   S.alive = false;
-  window.setTimeout(showEnding, 1600);
+  $("end-bar").classList.remove("hidden");   // 不自动跳页，让用户先回看时间线
 }
 
 /* ---------- 死亡 ---------- */
@@ -23,7 +23,7 @@ function die(cause) {
   if (S.flags["走火入魔"] && !S.flags["心魔已除"]) S.flags["走火未愈"] = true;
   log(cause, "death");
   clearSave();
-  window.setTimeout(showEnding, 1600);
+  $("end-bar").classList.remove("hidden");   // 不自动跳页，让用户先回看时间线
 }
 
 /* ---------- 主循环 ---------- */
@@ -39,11 +39,11 @@ function tick() {
     return;
   }
   if (S.age >= S.lifespan) {
-    die("寿元已尽。你在洞府中安然坐化，走过了 " + (S.age + STORY_BASE) + " 载。这一程修行，落幕。");
+    die("寿元已尽。你在洞府中安然坐化，走过了 " + (S.age + STORY_BASE) + " 载。这一程修行，到此也就落幕了。");
     return;
   }
   if (S.flags["走火入魔"] && !S.flags["心魔已除"] && Math.random() < 0.005) {
-    die("心魔反噬，真元暴走。你盘坐在蒲团上，再未醒来。时年 " + (S.age + STORY_BASE) + " 岁，道消。");
+    die("心魔反噬，真元彻底暴走。你盘坐在蒲团上，再没有醒来。时年 " + (S.age + STORY_BASE) + " 岁，道消。");
     return;
   }
   if (S.age > 10 && S.attrs["根骨"] <= 10 && Math.random() < 0.015) {
@@ -245,11 +245,17 @@ function bind() {
     $("btn-pause").textContent = S.paused ? "继续" : "暂停";
   });
 
+  $("btn-endcard").addEventListener("click", function () {
+    $("end-bar").classList.add("hidden");
+    showEnding();
+  });
+
   $("btn-restart").addEventListener("click", function () {
     stopTimer();
     S = null;
     talent = null;
     rollsLeft = 3;
+    $("end-bar").classList.add("hidden");
     ATTRS.forEach(function (n) { alloc[n] = 0; });
     $("talent-card").classList.add("empty");
     $("talent-name").textContent = "？？？";

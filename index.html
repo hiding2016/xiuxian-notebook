@@ -84,11 +84,16 @@
         <button id="btn-speed" class="btn btn-ghost" type="button">速度 ×1</button>
         <button id="btn-pause" class="btn btn-ghost" type="button">暂停</button>
       </div>
+      <!-- 道途终结：先让用户自由回看时间线，再自行点开总结卡 -->
+      <div id="end-bar" class="end-bar hidden">
+        <button id="btn-endcard" class="btn btn-primary btn-block" type="button">道途已尽 · 查看总结</button>
+      </div>
     </section>
 
     <!-- 抉择/突破弹窗 -->
     <div id="choice-mask" class="choice-mask hidden">
       <div class="choice-card">
+        <div id="choice-minilog" class="choice-minilog hidden"></div>
         <div id="choice-text" class="choice-text"></div>
         <div id="choice-btns" class="choice-btns"></div>
       </div>
