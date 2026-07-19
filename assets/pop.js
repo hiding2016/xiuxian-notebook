@@ -408,20 +408,154 @@ function heartDemonP() {
   return Math.max(0.05, Math.min(0.80, p));
 }
 
+/* ---------- 心魔三问：翻旧账 → 难题 → 判定 ----------
+ * 道心 delta 藏于文案：答得越稳爆发风险越低，心虚则风险更高。
+ */
+var HEART_QUESTIONS = [
+  { q: "若大道需斩情绝爱，你斩吗？", a: [
+    { text: "斩", result: "「斩。」你答得太快了。心魔冷笑：「斩得动吗？」", delta: 3 },
+    { text: "不斩", result: "「不斩。」你想了很久才答，答完心就静了。", delta: 6 },
+    { text: "不知道", result: "「不知道。」心魔等的就是这三个字，它笑出了声。", delta: -4 }
+  ] },
+  { q: "凡人一生几十年，你在山里一坐也是几十年，图什么？", a: [
+    { text: "图长生", result: "「图长生。」心魔反问：「长生那天，你又图什么？」你一时语塞。", delta: -2 },
+    { text: "图个明白", result: "「图个明白。」心魔愣了一下，竟没接上话。", delta: 6 },
+    { text: "不图什么", result: "「不图什么。」你耸耸肩：「就是想走，一直走下去。」", delta: 4 }
+  ] },
+  { q: "你攒下的灵石法宝，坐化那天一样带不走，值吗？", a: [
+    { text: "值", result: "「值。」你答得干脆：「带不走，也是我一箱一箱攒的。」", delta: 5 },
+    { text: "不值", result: "「不值。」话一出口你就皱眉了——心魔等的就是你的动摇。", delta: -4 },
+    { text: "没想过", result: "「没想过。」你挠挠头。心魔被这答案噎了一下。", delta: 3 }
+  ] },
+  { q: "若现在就让你回村种地，娶妻生子，你去吗？", a: [
+    { text: "去", result: "「去。」你说完自己先笑了：「骗你的。」心魔被耍了，很是不痛快。", delta: 4 },
+    { text: "不去", result: "「不去。」你望着洞府外的云海：「种地的日子，我早就过够了。」", delta: 6 },
+    { text: "犹豫", result: "你没有答。那两息沉默，被心魔死死咬住。", delta: -5 }
+  ] },
+  { q: "这一山门的人，你有几个真心相待？", a: [
+    { text: "三两个", result: "「三两个。」心魔追问是谁，你一个一个名字报了出来。", delta: 5 },
+    { text: "没有", result: "「没有。」心魔笑你孤家寡人，你淡淡道：「清净。」", delta: 2 },
+    { text: "都是", result: "「都是。」心魔嗤笑一句假话，你也知道是假话。", delta: -4 }
+  ] },
+  { q: "死在你剑下的妖兽，也是有幼崽的。你手抖过吗？", a: [
+    { text: "抖过", result: "「抖过。」你承认了，心里那块石头反而落了地。", delta: 6 },
+    { text: "没有", result: "「没有。」你答得硬气，心魔却钻进了一丝缝。", delta: -3 },
+    { text: "不答", result: "你不答。有些账，说给天听，不说给心魔听。", delta: 3 }
+  ] },
+  { q: "若结丹必成假丹，你还成吗？", a: [
+    { text: "成", result: "「成。」你说：「假丹也是丹，往后的路往后再说。」", delta: 6 },
+    { text: "不成", result: "「不成。」心魔笑了：「那你这些年在忙什么？」", delta: -5 },
+    { text: "听天由命", result: "「听天由命。」心魔撇嘴：「没劲。」", delta: 1 }
+  ] },
+  { q: "你最怕的，是道消身死，还是一辈子籍籍无名？", a: [
+    { text: "道消身死", result: "「怕死。」你答得坦然：「怕死，才活得仔细。」", delta: 4 },
+    { text: "籍籍无名", result: "「怕籍籍无名。」心魔眯起眼：「好大的执念，好肥的养料。」", delta: -3 },
+    { text: "都不怕", result: "「都不怕。」心魔盯了你半晌：「有点意思。」", delta: 5 }
+  ] }
+];
+
 function showHeartDemon() {
   var p = heartDemonP();
   var text = S.age + " 年 · 筑基既已圆满，结丹之日近在眼前。然而丹成之前，心魔先至——识海深处，无数声音质问你这一生的选择。";
   $("choice-text").textContent = text;
   log(text, "highlight");
-  showHints("神识 心魔已除 走火入魔");
+  showHints("神识 心魔 走火入魔");
   renderOpts([
-    { text: "直面心魔", sub: "看破它，了断它（爆发风险 " + Math.round(p * 100) + "%）", hd: "face" },
+    { text: "直面心魔", sub: "接受心魔三问（爆发风险 " + Math.round(p * 100) + "% 起，问心越稳风险越低）", hd: "face" },
     { text: "强行压下", sub: "爆发风险减半，但雷劫成功率 -10%", hd: "suppress" }
-  ], function (o) { resolveHeartDemon(o, p); });
+  ], function (o) {
+    if (o.hd === "suppress") resolveHeartDemon(o, p);
+    else heartTrialStart(p);
+  });
 }
 
+/* 从心魔视角翻旧账：取一条本局真实的历史抉择 */
+function pickOldChoice() {
+  var cands = [];
+  for (var i = 0; i < S.logs.length; i++) {
+    var l = S.logs[i];
+    if (l.c !== "choice-result") continue;
+    var m = l.t.match(/^你选择了「[^」]+」/);
+    if (!m) continue;
+    if (/筑基|结丹|心魔|渡劫|雷劫|秘境|停药|硬扛|竞价|加价/.test(l.t)) continue;
+    cands.push({ a: l.a, t: m[0] });
+  }
+  if (!cands.length) return null;
+  return cands[rand(0, cands.length - 1)];
+}
+
+function heartTrialStart(p) {
+  S.hd = { p: p, delta: 0 };
+  var old = pickOldChoice();
+  var accuse = old
+    ? "心魔翻出旧账：「" + old.a + "岁，" + old.t + "——那时选的，你可曾后悔过？」"
+    : "心魔翻出旧账：「这些年你做的那些选择，桩桩件件都在我这儿——你可曾后悔过？」";
+  $("choice-text").textContent = "心魔一问 · " + accuse;
+  log("心魔一问 · " + accuse, "");
+  renderOpts([
+    { text: "问心无愧", sub: "我选的路，我认", outcomes: [
+      { weight: 7, result: "你答得斩钉截铁。心魔的影子晃了晃，淡下去一分。", delta: 8 },
+      { weight: 3, result: "话一出口，你自己先晃了神。心魔狞笑着逼近一步。", delta: -6 }
+    ] },
+    { text: "坦然认错", sub: "错过的，认；欠下的，还", result: "你点点头：「那时年轻，欠的账我认。」心魔竟一时语塞。", delta: 4 }
+  ], function (o) { heartTrialBeat(o, 1); });
+}
+
+function heartTrialBeat(o, beat) {
+  var out = o;
+  if (o.outcomes && o.outcomes.length) {
+    var tw = 0;
+    o.outcomes.forEach(function (x) { tw += (x.weight || 1); });
+    var rr = Math.random() * tw;
+    out = o.outcomes[o.outcomes.length - 1];
+    for (var i = 0; i < o.outcomes.length; i++) {
+      rr -= (o.outcomes[i].weight || 1);
+      if (rr <= 0) { out = o.outcomes[i]; break; }
+    }
+  }
+  S.hd.delta += (out.delta || 0);
+  log("你选择了「" + o.text + "」。" + out.result, "choice-result");
+  if (beat === 1) {
+    // 第二问：心魔难题
+    var q = HEART_QUESTIONS[rand(0, HEART_QUESTIONS.length - 1)];
+    $("choice-text").textContent = "心魔二问 · 「" + q.q + "」";
+    log("心魔二问 · 「" + q.q + "」", "");
+    renderOpts(q.a.map(function (a) {
+      return { text: a.text, result: a.result, delta: a.delta };
+    }), function (o2) { heartTrialBeat(o2, 2); });
+    return;
+  }
+  heartTrialFinal();
+}
+
+function heartTrialFinal() {
+  var delta = S.hd.delta;
+  var risk = Math.max(0.02, Math.min(0.9, S.hd.p - delta * 0.01));
+  var feel = delta >= 8 ? "稳如磐石" : delta >= 3 ? "尚算稳固" : delta >= 0 ? "微微晃动" : "已现裂痕";
+  var text = "心魔凝聚成形，做最后一扑——你的道心" + feel + "。（爆发风险 " + Math.round(risk * 100) + "%）";
+  $("choice-text").textContent = "心魔三问 · " + text;
+  log("心魔三问 · " + text, "");
+  renderOpts([{ text: "渡这一劫", sub: "了断心魔，迎接雷劫" }], function () {
+    $("choice-mask").classList.add("hidden");
+    S.waitingChoice = false;
+    if (Math.random() < risk) {
+      S.cult = 900;
+      S.flags["走火入魔"] = true;
+      S.attrs["神识"] = clampAttr(S.attrs["神识"] - 10);
+      log("心魔爆了。识海翻江倒海，你一口血喷在蒲团上——结丹失败，走火入魔（神识 -10，修为退回后期）。", "death");
+      renderLifeAttrs();
+      renderRealm();
+      startTimer();
+      return;
+    }
+    log("你睁开眼，泪流满面，灵台却前所未有的清明。心魔，散了。", "choice-result");
+    showJiedan(0);
+  });
+}
+
+/* 强压心魔：不问，带着风险硬闯 */
 function resolveHeartDemon(o, p) {
-  var risk = o.hd === "face" ? p : p / 2;
+  var risk = p / 2;
   if (Math.random() < risk) {
     $("choice-mask").classList.add("hidden");
     S.waitingChoice = false;
@@ -434,10 +568,8 @@ function resolveHeartDemon(o, p) {
     startTimer();
     return;
   }
-  log(o.hd === "face"
-    ? "你睁开眼，泪流满面，灵台却前所未有的清明。心魔，散了。"
-    : "你把心魔狠狠压回识海深处。它还在，但暂时奈何不了你。", "choice-result");
-  showJiedan(o.hd === "suppress" ? 0.10 : 0);
+  log("你把心魔狠狠压回识海深处。它还在，但暂时奈何不了你。", "choice-result");
+  showJiedan(0.10);
 }
 
 function showJiedan(penalty) {

@@ -116,13 +116,19 @@ function renderPastLife() {
   } catch (e) { /* 数据损坏则忽略 */ }
   var sv = loadSave();
   var btn = $("btn-continue");
-  // v1 通关档（筑基·功成名就）v2 可从筑基期继续；结丹通关档暂封顶
-  var canContinue = sv && typeof sv.age === "number" &&
-    (!(sv.flags && sv.flags["功成名就"]) || sv.realmIdx === 1);
-  if (canContinue) {
+  // v1 通关档（筑基·功成名就）可从筑基期继续；v2 结丹通关档封顶——显示提示
+  if (sv && typeof sv.age === "number") {
+    var capped = sv.flags && sv.flags["功成名就"] && sv.realmIdx >= 2;
+    var canContinue = !(sv.flags && sv.flags["功成名就"]) || sv.realmIdx === 1;
     btn.classList.remove("hidden");
-    btn.textContent = "继续修行（" + (sv.age + STORY_BASE) + " 岁 · " +
-      (sv.realmIdx >= 2 ? "结丹期" : sv.realmIdx === 1 ? "筑基期" : "炼气期") + "）";
+    if (capped) {
+      btn.textContent = "已达版本上限（结丹期）· 等待新版本";
+      btn.disabled = true;
+    } else {
+      btn.textContent = "继续修行（" + (sv.age + STORY_BASE) + " 岁 · " +
+        (sv.realmIdx >= 2 ? "结丹期" : sv.realmIdx === 1 ? "筑基期" : "炼气期") + "）";
+      btn.disabled = false;
+    }
   } else {
     btn.classList.add("hidden");
   }
