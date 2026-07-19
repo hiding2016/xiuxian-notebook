@@ -294,9 +294,10 @@ function renderRealm() {
 }
 
 /* =========================================================
- * 日志系统：全量入库存档 + DOM 窗口 + 渐进加载
- * S.logs 全量持久化（存档字段）；DOM 只保留最近 300 条；
- * highlight/death 为重要节点，截断时优先保留；顶部「查看更早」渐进加载。
+ * 日志系统：全量入库存档 + 倒序 DOM 窗口 + 渐进加载
+ * S.logs 全量持久化（存档字段）；DOM 中**新条目置顶**——底部弹卡遮挡的
+ * 永远是最旧的条目，最新剧情始终可见；highlight/death 重要节点截断时优先保留；
+ * 底部「查看更早」渐进加载旧条目。
  * ========================================================= */
 var LOG_DOM_KEEP = 300;
 var LOG_LOAD_STEP = 100;
@@ -321,7 +322,7 @@ function trimLogDom() {
     var kids = box.querySelectorAll(".log-item");
     var excess = kids.length - LOG_DOM_KEEP;
     if (excess <= 0) return;
-    for (var i = 0; i < kids.length && excess > 0; i++) {
+    for (var i = kids.length - 1; i >= 0 && excess > 0; i--) {   // 从底部（最旧）清起
       var el = kids[i];
       if (pass === 0 && el.getAttribute("data-pin") === "1") continue;  // 先清普通条目
       box.removeChild(el);
@@ -341,11 +342,11 @@ function loadOlderLogs() {
   var min = -1;
   for (var k in S.domIdx) { var ki = +k; if (min === -1 || ki < min) min = ki; }
   if (min <= 0) { updateLoadMoreBtn(); return; }
-  var anchor = box.querySelector(".log-item");
+  var btn = $("log-more");
   var from = Math.max(0, min - LOG_LOAD_STEP);
-  for (var i = from; i < min; i++) {
+  for (var i = min - 1; i >= from; i--) {   // 旧条目向底部追加，保持新在上
     if (S.domIdx[i]) continue;
-    box.insertBefore(buildLogItem(S.logs[i], i), anchor);
+    box.insertBefore(buildLogItem(S.logs[i], i), btn);
     S.domIdx[i] = 1;
   }
   updateLoadMoreBtn();
@@ -355,29 +356,26 @@ function renderLogWindow() {
   var box = $("life-log");
   box.innerHTML = "";
   S.domIdx = {};
+  var from = Math.max(0, S.logs.length - LOG_WINDOW);
+  for (var i = S.logs.length - 1; i >= from; i--) {   // 新的在前
+    box.appendChild(buildLogItem(S.logs[i], i));
+    S.domIdx[i] = 1;
+  }
   var btn = document.createElement("button");
   btn.id = "log-more";
   btn.className = "log-more hidden";
   btn.type = "button";
   btn.textContent = "查看更早的修行";
   btn.addEventListener("click", loadOlderLogs);
-  box.appendChild(btn);
-  var from = Math.max(0, S.logs.length - LOG_WINDOW);
-  for (var i = from; i < S.logs.length; i++) {
-    box.appendChild(buildLogItem(S.logs[i], i));
-    S.domIdx[i] = 1;
-  }
+  box.appendChild(btn);   // 按钮沉底：更早的条目在下方
   updateLoadMoreBtn();
-  box.scrollTop = box.scrollHeight;
+  box.scrollTop = 0;   // 顶部即最新
 }
 
 function appendLog(item) {
   var box = $("life-log");
-  // 用户上翻回看时不强制滚底
-  var nearBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 40;
-  box.appendChild(item);
+  box.insertBefore(item, box.firstChild);   // 新条目置顶
   trimLogDom();
-  if (nearBottom) box.scrollTop = box.scrollHeight;
 }
 
 function log(text, cls) {

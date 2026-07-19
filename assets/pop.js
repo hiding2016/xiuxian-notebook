@@ -282,10 +282,10 @@ function showDungeonNode() {
   var opts = node.choices.filter(function (c) { return condOk(c.cond, S.attrs, S.flags, S.inv); });
   if (!opts.length) { exitDungeon("你找不到可行的路，只得退了出来。"); return; }
   $("choice-text").textContent = "【" + d.name + " · 第" + (S.dg.depth + 1) + "层】" + node.text;
-  // 卡顶迷你时间线：秘境连续选择时剧情不断线
+  // 卡顶迷你时间线：秘境连续选择时剧情不断线（新在上，与主日志一致）
   var ml = $("choice-minilog");
   ml.innerHTML = "";
-  S.logs.slice(-3).forEach(function (l) {
+  S.logs.slice(-3).reverse().forEach(function (l) {
     var li = document.createElement("div");
     li.className = "minilog-item" + (l.c ? " " + l.c : "");
     li.textContent = l.a + "岁 · " + l.t;
