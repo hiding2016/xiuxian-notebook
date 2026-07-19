@@ -291,6 +291,19 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
+.log-more {
+  align-self: center;
+  border: 1px dashed var(--line);
+  background: var(--paper);
+  color: var(--ink-soft);
+  font-size: 12px;
+  border-radius: 999px;
+  padding: 6px 16px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.log-more:active { opacity: .6; }
+
 .life-bottom {
   display: flex; gap: 10px;
   padding: 10px 16px calc(12px + env(safe-area-inset-bottom, 0px));
@@ -299,17 +312,22 @@ body {
 }
 .life-bottom .btn { flex: 1; }
 
-/* ---------- 弹窗 ---------- */
+/* ---------- 弹窗（底部弹卡：不挡日志，日志区保持可见可滚动） ---------- */
 .choice-mask {
   position: absolute;
   inset: 0;
-  background: rgba(30, 25, 18, .6);
+  background: transparent;
+  pointer-events: none;
   display: flex;
   align-items: flex-end;
   z-index: 10;
 }
 .choice-card {
+  pointer-events: auto;
   width: 100%;
+  max-height: 58vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   background: var(--card);
   border-radius: 20px 20px 0 0;
   border-top: 3px solid var(--gold);
