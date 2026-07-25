@@ -32,16 +32,14 @@ python tools/打包.py
 
 ## 让 AI 继续开发（vibecoding）
 
-本项目为 AI 协作设计：内容全在 `assets/data.js` 纯数据里，**加新事件不用碰引擎代码**。
+你什么都不用教 AI——仓库根目录的 [AGENTS.md](AGENTS.md) 是 AI 编程工具会自动读取的守则（先拉分支、事件 Schema、文案红线、提交前必须过 lint，全在里面）。
 
-三步走：
+你只需做两件事：
 
-1. 先拉工作分支：`git checkout -b content/<主题>`——AI 产出是半成品，分支是闸门，main 永远保持能玩；
-2. 把 [docs/使用教程.md](docs/使用教程.md) 第二章的 Schema + [tools/文案规范.md](tools/文案规范.md) 贴给 AI，再附 3–5 条现有事件当范例；
-3. 让 AI 按你的方向批量产出事件，把事件对象插进 `data.js`；
-4. 跑 `node tools/lint.js` 校验（必须 0 错误），浏览器实测一遍，满意再合回 main。
+1. **说人话**：把仓库丢给 AI 编程工具，直接提需求——“加十条筑基期事件”“凝元丹调到 35 灵石”；
+2. **玩一遍**：浏览器打开 `index.html` 实测，满意了合并分支，不满意让它改或丢掉分支。`main` 永远是干净的。
 
-分支命名、提交信息格式、合并前检查单见 [CONTRIBUTING.md](CONTRIBUTING.md)；详细工作流、prompt 模板、AI 产出常见毛病清单见 [docs/使用教程.md](docs/使用教程.md) 第三章。
+原理和排障见 [docs/使用教程.md](docs/使用教程.md) 第三章。
 
 ## 玩法
 
