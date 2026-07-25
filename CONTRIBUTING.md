@@ -2,6 +2,46 @@
 
 最受欢迎的贡献是**新事件/新剧情**——游戏内容与引擎完全分离，写事件只需要改 `assets/data.js` 一个文件，不需要碰任何引擎代码。
 
+## Git 协作规范
+
+### 分支：不要在 main 上直接干活
+
+无论是人还是 AI 开发，**先拉分支**：
+
+```bash
+git checkout -b content/zb-shanglu   # 从 main 切出你的工作分支
+# ……干活、提交……
+git push -u origin content/zb-shanglu
+# 到 GitHub 提 Pull Request，合并后删分支
+```
+
+分支命名：<类型>/<简述>（英文小写短横线）：
+
+| 前缀 | 用途 | 例 |
+| --- | --- | --- |
+| `content/` | 新事件、新剧情链、新秘境 | `content/mj-leize` |
+| `feat/` | 引擎新机制、新玩法 | `feat/auction-v2` |
+| `fix/` | 修 bug | `fix/save-realm` |
+| `balance/` | 数值调整 | `balance/ningyuan-price` |
+| `docs/` | 文档 | `docs/tutorial` |
+
+为什么强制分支：AI 批量产出的内容需要审阅和实测，分支 = 一道闸门——lint 不过、实测不满意，整个分支丢掉即可，main 永远是能玩的状态。
+
+### 提交信息
+
+沿用仓库现有格式：`<类型>: <中文描述>`
+
+- 类型：`feat` 新功能 / `fix` 修 bug / `content` 新事件剧情 / `balance` 调数值 / `docs` 文档 / `chore` 杂务
+- 描述写**为什么**多于**是什么**：`fix: 断句句式规则放宽至前3-5字 + 18处改写` 好过 `fix: 更新数据`
+- 小步提交：一批事件一个 commit，出问题知道回退哪批
+
+### 合并前检查单
+
+- [ ] `node tools/lint.js` 0 错误（pre-commit 钩子也会拦）
+- [ ] 改了数值 → 跑过 `node tools/sim.js`
+- [ ] 浏览器实测过新内容真的会出现、能玩通
+- [ ] 存档字段只增不删（§存档兼容）
+
 ## 快速上手
 
 1. 在 `assets/data.js` 的事件数组里照 Schema 加一条事件

@@ -36,11 +36,12 @@ python tools/打包.py
 
 三步走：
 
-1. 把 [docs/使用教程.md](docs/使用教程.md) 第二章的 Schema + [tools/文案规范.md](tools/文案规范.md) 贴给 AI，再附 3–5 条现有事件当范例；
-2. 让 AI 按你的方向批量产出事件，把事件对象插进 `data.js`；
-3. 跑 `node tools/lint.js` 校验（必须 0 错误），然后浏览器实测一遍。
+1. 先拉工作分支：`git checkout -b content/<主题>`——AI 产出是半成品，分支是闸门，main 永远保持能玩；
+2. 把 [docs/使用教程.md](docs/使用教程.md) 第二章的 Schema + [tools/文案规范.md](tools/文案规范.md) 贴给 AI，再附 3–5 条现有事件当范例；
+3. 让 AI 按你的方向批量产出事件，把事件对象插进 `data.js`；
+4. 跑 `node tools/lint.js` 校验（必须 0 错误），浏览器实测一遍，满意再合回 main。
 
-详细工作流、prompt 模板、AI 产出常见毛病清单，见 [docs/使用教程.md](docs/使用教程.md) 第三章。
+分支命名、提交信息格式、合并前检查单见 [CONTRIBUTING.md](CONTRIBUTING.md)；详细工作流、prompt 模板、AI 产出常见毛病清单见 [docs/使用教程.md](docs/使用教程.md) 第三章。
 
 ## 玩法
 
