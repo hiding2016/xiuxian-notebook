@@ -8,7 +8,39 @@
 
 > GitHub Pages 地址（待开启后替换）：`https://<你的用户名>.github.io/xiuxian-notebook/`
 
-本地试玩：直接用浏览器打开 `index.html` 即可，无需构建、无需服务器。
+## 本地运行
+
+无需安装任何东西，两种方式任选：
+
+- **直接打开**：双击 `index.html`，用浏览器（Chrome / Edge / Safari）打开即玩。游戏是纯本地静态页，存档存在浏览器 localStorage 里。
+- **本地服务器**（可选，某些浏览器对 file:// 限制较多时用）：
+
+```bash
+cd 本仓库目录
+python -m http.server 8000
+# 浏览器打开 http://localhost:8000
+```
+
+## 打包发布
+
+打成 zip 发布包（index.html 在包根目录，自动排除 tools/ 等开发文件）：
+
+```bash
+python tools/打包.py
+# 生成：仓库根目录/修仙记事本.zip
+```
+
+## 让 AI 继续开发（vibecoding）
+
+本项目为 AI 协作设计：内容全在 `assets/data.js` 纯数据里，**加新事件不用碰引擎代码**。
+
+三步走：
+
+1. 把 [docs/使用教程.md](docs/使用教程.md) 第二章的 Schema + [tools/文案规范.md](tools/文案规范.md) 贴给 AI，再附 3–5 条现有事件当范例；
+2. 让 AI 按你的方向批量产出事件，把事件对象插进 `data.js`；
+3. 跑 `node tools/lint.js` 校验（必须 0 错误），然后浏览器实测一遍。
+
+详细工作流、prompt 模板、AI 产出常见毛病清单，见 [docs/使用教程.md](docs/使用教程.md) 第三章。
 
 ## 玩法
 
@@ -41,7 +73,7 @@ tools/            开发脚本（内容 lint、数值模拟、打包）
 
 ## 参与贡献
 
-想加事件、写剧情、调平衡？请看 [CONTRIBUTING.md](CONTRIBUTING.md)——事件是纯数据，改 `data.js` 一个文件即可。
+想加事件、写剧情、调平衡？请看 [CONTRIBUTING.md](CONTRIBUTING.md)——事件是纯数据，改 `data.js` 一个文件即可。想理解设计思路和代码规范，读 [docs/使用教程.md](docs/使用教程.md)。
 
 ## 声明
 

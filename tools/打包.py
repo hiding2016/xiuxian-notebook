@@ -2,13 +2,13 @@
 """修仙记事本 · 发布打包脚本
 
 把 index.html + assets/ 打包为 ../修仙记事本.zip，自动排除 tools/ 等开发目录。
-用法: python tools/pack.py
+用法: python tools/打包.py
 """
 import zipfile
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent  # 修仙记事本/
-OUT = ROOT.parent / "修仙记事本.zip"            # 小红书skill/修仙记事本.zip
+ROOT = Path(__file__).resolve().parent.parent  # 仓库根目录
+OUT = ROOT / "修仙记事本.zip"                  # 输出到仓库根（已 gitignore）
 EXCLUDE = {"tools", "content_frag"}             # 开发目录，不纳入发布包
 
 with zipfile.ZipFile(OUT, "w", zipfile.ZIP_DEFLATED) as zf:
