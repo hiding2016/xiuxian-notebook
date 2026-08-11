@@ -10,6 +10,10 @@ const vm = require("vm");
 const ROOT = path.join(__dirname, "..");
 const ctx = { window: {} };
 vm.createContext(ctx);
+const EVENT_FILES = ["events-lianqi.js", "events-zhuji.js", "events-jindan.js", "events-jindan-s1.js", "events-jindan-s2.js", "events-jindan-s3.js", "events-yuanying.js", "events-yuanying-s1.js", "events-yuanying-s2.js", "events-yuanying-s3.js", "events-huashen.js", "events-cross.js", "events-jzg.js", "events-quanyi.js", "events-huafeng.js", "events-shenshi.js"];
+for (const f of EVENT_FILES) {
+  vm.runInContext(fs.readFileSync(path.join(ROOT, "assets/data/" + f), "utf8"), ctx, { filename: f });
+}
 vm.runInContext(fs.readFileSync(path.join(ROOT, "assets/data.js"), "utf8"), ctx);
 const D = ctx.window.GAME_DATA;
 
@@ -20,11 +24,11 @@ const warn = (m) => { warnings++; console.log("  ⚠ " + m); };
 const ATTRS = D.attrs;
 const TYPES = ["daily", "chance", "trib", "miracle", "flavor"];
 const CATS = ["xiulian", "ziyuan", "zhandou", "renji", "xinjing", "jiyuan"];
-const COND_KEYS = ["min", "max", "flag", "flag2", "notFlag", "notFlag2", "inv", "invMax", "gongfa", "gongfaMax", "artifact", "artifactMax", "combatMin"];
-const EFFECT_KEYS = ["attrs", "inv", "flag", "gongfa", "artifact", "realmLoss", "danStop"];
-const CHOICE_KEYS = ["text", "sub", "cond", "effect", "result", "outcomes", "go", "combat", "win", "lose", "sanbao", "death"];
+const COND_KEYS = ["min", "max", "flag", "flag2", "notFlag", "notFlag2", "inv", "invMax", "gongfa", "gongfaMax", "artifact", "artifactMax", "combatMin", "cultMin", "cultMax", "intel", "daoXinMin", "renqingMax", "renqingMin", "factionRoute", "artType", "artTypeMax", "spellTypeMax"];
+const EFFECT_KEYS = ["attrs", "inv", "flag", "flag2", "gongfa", "artifact", "realmLoss", "danStop", "spell", "daoXin", "evil", "goodKarma", "intel", "sanShang", "weak", "achievement", "factionDelta", "factionInit", "renqing", "artifactForce", "artifactType", "statsInc"];
+const CHOICE_KEYS = ["text", "sub", "cond", "effect", "result", "outcomes", "go", "combat", "win", "lose", "sanbao", "death", "battle"];
 const OUTCOME_KEYS = ["weight", "result", "effect", "go", "sanbao", "death"];
-const EVENT_KEYS = ["id", "type", "cat", "layers", "minAge", "age", "milestone", "chain", "cooldown", "weight", "weightBy", "cond", "effect", "choices", "auction", "timing", "highlight", "text", "realms", "dungeon"];
+const EVENT_KEYS = ["id", "type", "cat", "layers", "minAge", "age", "milestone", "chain", "cooldown", "weight", "weightBy", "cond", "effect", "choices", "auction", "timing", "highlight", "text", "realms", "dungeon", "battle", "board", "boardFlag", "group"];
 
 function checkCond(cond, who) {
   if (!cond) return;
@@ -36,6 +40,19 @@ function checkEffect(effect, who) {
   if (!effect) return;
   for (const k of Object.keys(effect)) if (!EFFECT_KEYS.includes(k)) err(who + " effect 未知键: " + k);
   if (effect.attrs) for (const k of Object.keys(effect.attrs)) if (!ATTRS.includes(k)) err(who + " effect.attrs 未知属性: " + k);
+}
+function checkBattle(b, who) {
+  if (!b) return;
+  if (!b.name) err(who + " battle 缺 name");
+  if (![1, 2, 3].includes(b.tier)) err(who + " battle tier 非法（须 1-3）: " + b.tier);
+  if (b.loseWeights !== undefined) {
+    if (!Array.isArray(b.loseWeights) || b.loseWeights.length !== 3 || b.loseWeights.reduce((s, x) => s + x, 0) !== 100)
+      err(who + " battle loseWeights 须为三项且和为 100: " + JSON.stringify(b.loseWeights));
+  }
+  if (!b.deathText) err(who + " battle 缺 deathText（兵解文案）");
+  checkEffect(b.winEffect, who + " battle.winEffect");
+  checkEffect(b.lightEffect, who + " battle.lightEffect");
+  checkEffect(b.heavyEffect, who + " battle.heavyEffect");
 }
 function checkChoice(c, who, inDungeon) {
   if (!c.text) err(who + " 选项缺 text");
@@ -59,6 +76,7 @@ function checkChoice(c, who, inDungeon) {
       }
     });
   }
+  if (c.battle) checkBattle(c.battle, who + " 选项 battle");
   if (c.go && !["deeper", "stay", "exit"].includes(c.go)) err(who + " go 非法: " + c.go);
   if (inDungeon && !c.combat && !c.outcomes && !c.result) warn(who + " 选项无 result 文案");
 }
@@ -78,7 +96,7 @@ for (const e of D.events) {
   if (e.type && !TYPES.includes(e.type)) err(who + " type 非法: " + e.type);
   if (e.cat && !CATS.includes(e.cat)) err(who + " cat 非法: " + e.cat);
   if (e.realms) {
-    if (!Array.isArray(e.realms) || e.realms.some((r) => ![0, 1, 2].includes(r))) err(who + " realms 非法: " + JSON.stringify(e.realms));
+    if (!Array.isArray(e.realms) || e.realms.some((r) => ![0, 1, 2, 3, 4].includes(r))) err(who + " realms 非法: " + JSON.stringify(e.realms));
   }
   if (e.layers && (e.layers[0] < 1 || e.layers[1] > 13)) err(who + " layers 越界: " + e.layers);
   checkCond(e.cond, who);
@@ -88,6 +106,7 @@ for (const e of D.events) {
     e.choices.forEach((c, i) => checkChoice(c, who + " 选项" + i, false));
     if (!e.choices.some((c) => !c.cond)) warn(who + " 所有选项都带 cond，可能退化为纯文本");
   }
+  if (e.battle) checkBattle(e.battle, who);
   if (e.dungeon && !dungeonIds.has(e.dungeon)) err(who + " 引用不存在的秘境: " + e.dungeon);
   if (e.dungeon && !e.realms) warn(who + " 秘境入口缺 realms");
 }
@@ -127,20 +146,46 @@ for (const d of D.dungeons || []) {
       if (scan.includes("sanbao")) hasSanbao = true;
     }
   }
-  if (d.depths.length >= 3 && !hasSanbao) warn(who + " 第 3 层起无三宝宝箱（sanbao）");
+  if (d.depths.length >= 3 && !hasSanbao && !d.spellTreasure) warn(who + " 第 3 层起无三宝宝箱（sanbao）");
+}
+
+/* ---------- 法术 ---------- */
+{
+  const SPELL_TYPES = ["攻", "守", "变"];
+  const spellIds = new Set();
+  for (const s of D.spells || []) {
+    if (!s.id || spellIds.has(s.id)) err("法术 id 缺失或重复: " + s.id);
+    spellIds.add(s.id);
+    if (!s.name) err("法术[" + s.id + "] 缺 name");
+    if (!SPELL_TYPES.includes(s.type)) err("法术[" + s.id + "] type 非法: " + s.type);
+    if (typeof s.power !== "number") err("法术[" + s.id + "] power 非数值");
+  }
+  console.log("法术: " + spellIds.size + " 种");
+}
+
+/* ---------- 天赋 ---------- */
+for (const t of D.talents || []) {
+  if (t.effect && t.effect.attrs) {
+    for (const k of Object.keys(t.effect.attrs)) {
+      if (!ATTRS.includes(k)) err("天赋[" + t.id + "] effect.attrs 未知属性: " + k);
+    }
+  }
 }
 
 /* ---------- 结局 ---------- */
 for (const e of D.endings) checkCond(e.cond, "结局[" + e.title + "]");
 
 /* ---------- 配置 ---------- */
-if (!D.realms || D.realms.length !== 3) err("realms 配置缺失或长度不为 3");
+if (!D.realms || D.realms.length !== 5) err("realms 配置缺失或长度不为 5（v4 化神）");
 if (D.realms && D.realms[1].need !== 1500) warn("筑基 need = " + (D.realms && D.realms[1].need) + "（设计 1500）");
 
 /* ---------- 红线词扫描 ---------- */
 const BANNED = ["一世", "前世", "来世", "轮回", "投胎", "享年", "重生"];
-const scanText = JSON.stringify(D.events) + JSON.stringify(D.endings) + JSON.stringify(D.dungeons);
+const scanText = JSON.stringify(D.events) + JSON.stringify(D.endings) + JSON.stringify(D.dungeons) + JSON.stringify(D.spells);
 for (const w of BANNED) if (scanText.includes(w)) err("红线词出现: " + w);
+
+/* ---------- 口语红线：禁「不是」（「不是的」「不是这样」除外，作者 2026-07-26 定） ---------- */
+if (/不是(?!的|这样)/.test(scanText)) err("口语红线「不是」出现（仅「不是的」「不是这样」豁免）");
 
 /* ---------- 断句句式（作者点名单重，禁） ---------- */
 const BADPAT = /[一-龥]{3,5}，[一-龥]{1,4}。/;

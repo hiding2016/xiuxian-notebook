@@ -19,7 +19,7 @@
       -webkit-touch-callout: none;
     }
   </style>
-  <link rel="stylesheet" href="./assets/style.css" />
+  <link rel="stylesheet" href="./assets/style.css?v=20260730" />
 </head>
 <body>
   <div id="app">
@@ -37,7 +37,11 @@
 
         <div id="past-life" class="past-life hidden">
           <div class="past-life-title">上一次修行</div>
-          <div id="past-life-body" class="past-life-body"></div><div id="past-life-cap" class="past-life-cap hidden">已达当前版本上限（结丹期），等待后续版本继续修行</div>
+          <div id="past-life-body" class="past-life-body"></div><div id="past-life-cap" class="past-life-cap hidden">已达当前版本上限（化神期），等待后续版本继续修行</div>
+          <div class="past-life-actions">
+            <button id="btn-retry" class="btn btn-ghost hidden" type="button">重玩</button>
+            <button id="btn-snap" class="btn btn-ghost hidden" type="button">查看总结</button>
+          </div>
         </div>
 
         <div class="panel">
@@ -60,7 +64,7 @@
 
         <button id="btn-start" class="btn btn-primary btn-block btn-start" type="button" disabled>踏入仙途</button>
         <p class="start-tip">先测机缘，再分配完所有天赋点</p>
-        <p class="start-tip dim">当前版本开放至「结丹期」，修为与物资会自动存档，后续版本可继续修行</p>
+        <p class="start-tip dim">当前版本开放至「化神期」，修为与物资会自动存档，后续版本可继续修行</p>
       </div>
     </section>
 
@@ -75,9 +79,29 @@
             <span id="cult-num" class="cult-num">0/100</span>
           </div>
         </div>
-        <div id="life-attrs" class="life-attrs"></div>
         <div id="life-inv" class="life-attrs"></div>
-        <div id="life-bp" class="backpack"></div>
+      </div>
+      <button id="fab-bag" class="fab-bag hidden" type="button">行囊</button>
+      <div id="bag-panel" class="bag-panel hidden">
+        <div class="bag-tabs">
+          <button class="bag-tab-btn active" data-tab="attrs" type="button">属性</button>
+          <button class="bag-tab-btn" data-tab="bag" type="button">背包</button>
+          <button class="bag-tab-btn" data-tab="spell" type="button">法术</button>
+          <button class="bag-tab-btn" data-tab="art" type="button">法宝</button>
+          <button class="bag-tab-btn" data-tab="shop" type="button">坊市</button>
+          <button class="bag-tab-btn" data-tab="faction" type="button">势力</button>
+        </div>
+        <div id="bag-pane-attrs" class="bag-pane">
+          <div id="life-attrs" class="life-attrs"></div>
+          <div id="bag-extra" class="bag-extra"></div>
+        </div>
+        <div id="bag-pane-bag" class="bag-pane hidden">
+          <div id="life-bp" class="backpack"></div>
+        </div>
+        <div id="bag-pane-spell" class="bag-pane hidden"></div>
+        <div id="bag-pane-art" class="bag-pane hidden"></div>
+        <div id="bag-pane-shop" class="bag-pane hidden"></div>
+        <div id="bag-pane-faction" class="bag-pane hidden"></div>
       </div>
       <div id="life-log" class="life-log"></div>
       <div class="life-bottom">
@@ -113,6 +137,10 @@
           <div class="end-age" id="end-age">修行 — 年</div>
           <div class="end-attrs" id="end-attrs"></div>
           <div class="end-section">
+            <div class="end-section-title">生平志</div>
+            <ul id="end-achievements" class="end-highlights"></ul>
+          </div>
+          <div class="end-section">
             <div class="end-section-title">道途名场面</div>
             <ul id="end-highlights" class="end-highlights"></ul>
           </div>
@@ -127,10 +155,27 @@
     </section>
 
   </div>
-  <script src="./assets/data.js"></script>
-  <script src="./assets/core.js"></script>
-  <script src="./assets/ui.js"></script>
-  <script src="./assets/pop.js"></script>
-  <script src="./assets/loop.js"></script>
+  <script src="./assets/data/events-lianqi.js?v=20260730"></script>
+  <script src="./assets/data/events-zhuji.js?v=20260730"></script>
+  <script src="./assets/data/events-jindan.js?v=20260730"></script>
+  <script src="./assets/data/events-jindan-s1.js?v=20260730"></script>
+  <script src="./assets/data/events-jindan-s2.js?v=20260730"></script>
+  <script src="./assets/data/events-jindan-s3.js?v=20260730"></script>
+  <script src="./assets/data/events-yuanying.js?v=20260730"></script>
+  <script src="./assets/data/events-yuanying-s1.js?v=20260730"></script>
+  <script src="./assets/data/events-yuanying-s2.js?v=20260730"></script>
+  <script src="./assets/data/events-yuanying-s3.js?v=20260730"></script>
+  <script src="./assets/data/events-huashen.js?v=20260730"></script>
+  <script src="./assets/data/events-cross.js?v=20260730"></script>
+  <script src="./assets/data/events-jzg.js?v=20260730"></script>
+  <script src="./assets/data/events-quanyi.js?v=20260730"></script>
+  <script src="./assets/data/events-huafeng.js?v=20260730"></script>
+  <script src="./assets/data/events-shenshi.js?v=20260730"></script>
+  <script src="./assets/data.js?v=20260730"></script>
+  <script src="./assets/core.js?v=20260730"></script>
+  <script src="./assets/ui.js?v=20260730"></script>
+  <script src="./assets/pop.js?v=20260730"></script>
+  <script src="./assets/loop.js?v=20260730"></script>
+  <script src="./assets/gm.js?v=20260730"></script>
 </body>
 </html>

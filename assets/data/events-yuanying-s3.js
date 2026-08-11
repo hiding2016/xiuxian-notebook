@@ -1,0 +1,68 @@
+/* 修仙记事本 · 元婴后期事件（v4 三段池：化神筹备，cultMin 3200，一次性无 cooldown） */
+window.GAME_EVENTS_R3_S3 = [
+    { id: "yy3_leiyun", type: "daily", cat: "xinjing", realms: [3], highlight: true, cond: { cultMin: 3200 },
+      text: "你的山头连落了七日雷，不伤草木，只在洞府上空盘旋。各宗掌教齐聚山下，却没人敢上来问。你知道，那一天近了。" },
+    { id: "yy3_wenshen1", type: "daily", cat: "xiulian", realms: [3], cond: { cultMin: 3200 },
+      text: "你开始清数自己的家底：功法、法宝、灵材、人脉。化神不带外物，可筹备化神，一样都缺不得。",
+      effect: { attrs: { "神识": 2 } } },
+    { id: "yy3_gujiu4", type: "trib", cat: "renji", realms: [3], highlight: true, cond: { cultMin: 3200 },
+      text: "讣告：同代最后一位元婴老祖坐化了。你去送他，两位侍者扶着你下的山。从此这方天地的旧人，只剩你一个。",
+      effect: { attrs: { "神识": 4 } } },
+    { id: "yy3_daolv6", type: "trib", cat: "renji", realms: [3], highlight: true,
+      cond: { cultMin: 3200, flag: "道侣", notFlag: "道侣坐化" },
+      text: "【道侣名】寿数到了。TA拉着你的手说：「别为我停。你的路在天上，我的路，也就到这了。」TA走的那晚，你在洞府外站到天亮。",
+      effect: { flag: "道侣坐化", daoXin: 1 } },
+    { id: "yy3_yibo2", type: "chance", cat: "renji", realms: [3], cond: { cultMin: 3200, flag: "开府", notFlag: "衣钵有属" },
+      text: "大弟子跪在你面前，求一个名分：「师尊若有不测，这一山的人，听谁的？」",
+      choices: [
+        { text: "传衣钵", sub: "百年之计", effect: { flag: "衣钵有属", factionDelta: { rep: 1 } }, result: "你把信物交到他手上，又叫来全府的人见证。那之后，你夜里睡得安稳了些。" },
+        { text: "再等等", result: "你扶他起来，只说：我还要飞升呢，你急个什么。他笑了，眼角却有泪。" }
+      ] },
+    { id: "yy3_yujian2", type: "daily", cat: "xiulian", realms: [3], cond: { cultMin: 3200 },
+      text: "你把毕生所学刻成十二卷玉简，每一卷封入一缕神念。千年之后，有缘人自会找到它们。",
+      effect: { daoXin: 1 } },
+    { id: "yy3_zhenshan2", type: "daily", cat: "renji", realms: [3], cond: { cultMin: 3200, flag: "开府" },
+      text: "你耗三年之功，把山门大阵升成了「天罗阵」。弟子们问防谁，你说：防我不在的那一年。" },
+    { id: "yy3_mengjing", type: "daily", cat: "xinjing", realms: [3], cond: { cultMin: 3200 },
+      text: "那个梦越来越清晰了：九天之上有门，门后有人唤你。上周，你在梦里看清了门环上的纹路。",
+      effect: { attrs: { "神识": 2 } } },
+    { id: "yy3_chuanshuo2", type: "flavor", cat: "renji", realms: [3], cond: { cultMin: 3200 },
+      text: "凡间的戏文里，你已经成了白胡子神仙，出行骑鹿，手里还捧着仙桃。你听了，心想：等我真的走了，他们爱怎么编就怎么编吧。" },
+    { id: "yy3_lingyao2", type: "daily", cat: "ziyuan", realms: [3], cond: { cultMin: 3200 },
+      text: "你遍访名山大川，采齐七七四十九味灵材，尽数封入地宫。这些都是渡劫那日的底气——虽然你清楚，雷劫跟前，外物多半无用。",
+      effect: { inv: { "灵石": -300 } } },
+    { id: "yy3_wenxin2", type: "chance", cat: "xinjing", realms: [3], cond: { cultMin: 3200 },
+      text: "徒孙壮着胆子问你：老祖，你怕吗？",
+      choices: [
+        { text: "怕", sub: "道心 +1", effect: { daoXin: 1 }, result: "你说：怕。怕死，也怕辜负。孩子似懂非懂，给你磕了个头。" },
+        { text: "不怕", result: "你说：不怕。转身回山时，你把自己的手按在了胸口——跳得比说话快。" }
+      ] },
+    { id: "yy3_zuohua3", type: "trib", cat: "renji", realms: [3], cond: { cultMin: 3200 },
+      text: "金丹期跟过你的老执事坐化了，遗物里有一本账：哪年哪月你赏过他什么，一笔一笔，记了二百年。",
+      effect: { attrs: { "神识": 3 } } },
+    { id: "yy3_tianxia2", type: "flavor", cat: "renji", realms: [3], cond: { cultMin: 3200 },
+      text: "如今的天下：你的山门是圣地，你的规矩是天条，你的生日是山下七国的庆典。你站在峰顶，只觉得有些吵。" },
+    { id: "yy3_moxiu2", type: "trib", cat: "renji", realms: [3], cond: { cultMin: 3200, notFlag: "魔修" },
+      text: "魔道闻风而动，趁你筹备化神四出劫掠，试探你的底线。",
+      choices: [
+        { text: "下山震慑", sub: "超阶斗法", battle: {
+          name: "魔道巨擘", tier: 3, loseWeights: [40, 40, 20], demonic: true, elem: "火",
+          winText: "你一剑压服了三位老魔。魔道连夜收敛，商路重新通了。",
+          winEffect: { factionDelta: { rep: 2 } }, wuxue: [250, 400],
+          lightText: "你小胜一场，魔道退了三十里观望。", lightEffect: {},
+          heavyText: "老魔们联手设局，你中了埋伏，负了伤才回山。", heavyEffect: { sanShang: 2 },
+          deathText: "化神未成，先陨于魔手。山下七国，为你缟素三月。兵解。"
+        } },
+        { text: "不理", result: "你不为所动。魔道闹了两年，见你真的不出山，气焰又涨了三分。" }
+      ] },
+    { id: "yy3_qingdian", type: "daily", cat: "renji", realms: [3], cond: { cultMin: 3200 },
+      text: "各宗联名上书，求在你飞升之前立一块「神君碑」，把你的功绩都刻上去，以便千秋传颂。你批了两个字：从简。",
+      effect: { factionDelta: { rep: 1 } } },
+    { id: "yy3_zichu", type: "daily", cat: "xinjing", realms: [3], cond: { cultMin: 3200 },
+      text: "你试着内视化神之门：门在，路在，就差最后一步迈出去。这一步，有人等了三百年，有人一步就跨没了命。" },
+    { id: "yy3_shoushu", type: "daily", cat: "renji", realms: [3], cond: { cultMin: 3200 },
+      text: "你开始亲手安排每一件事：峰务的章程、弟子的出路、洞府的钥匙。弟子们不敢问，你也什么都不说。" },
+    { id: "yy3_huishou2", type: "daily", cat: "xinjing", realms: [3], highlight: true, cond: { cultMin: 3200 },
+      text: "千年一觉。你闭上眼，还能看见十二岁那年山门的石阶、娘塞的煮鸡蛋、沈七撂狠话的背影。这一程，就快到头了。",
+      effect: { daoXin: 1 } }
+];

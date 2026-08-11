@@ -116,10 +116,10 @@ function renderPastLife() {
   } catch (e) { /* 数据损坏则忽略 */ }
   var sv = loadSave();
   var btn = $("btn-continue");
-  // v1 通关档（筑基·功成名就）可从筑基期继续；结丹通关档暂封顶
-  var capped = sv && sv.flags && sv.flags["功成名就"] && sv.realmIdx >= 2;
+  // v1/v2 通关档（筑基/结丹·功成名就）可继续修行；元婴通关档封顶
+  var capped = sv && sv.flags && sv.flags["功成名就"] && sv.realmIdx >= 3;
   var canContinue = sv && typeof sv.age === "number" &&
-    (!(sv.flags && sv.flags["功成名就"]) || sv.realmIdx === 1);
+    (!(sv.flags && sv.flags["功成名就"]) || sv.realmIdx === 1 || sv.realmIdx === 2);
   if (canContinue) {
     btn.classList.remove("hidden");
     btn.textContent = "继续修行（" + (sv.age + STORY_BASE) + " 岁 · " +
@@ -130,6 +130,23 @@ function renderPastLife() {
   // 封顶提示：写在「上一次修行」框里，小字，不抢眼
   var cap = $("past-life-cap");
   if (cap) cap.classList.toggle("hidden", !capped);
+
+  // 重玩（战死档，每局 10 次）与查看总结
+  var deadRaw = null, snapRaw = null, retries = 10;
+  try {
+    deadRaw = window.localStorage.getItem(DEAD_KEY);
+    snapRaw = window.localStorage.getItem(SNAP_KEY);
+    retries = parseInt(window.localStorage.getItem(RETRY_KEY) || "10", 10);
+    if (isNaN(retries)) retries = 10;
+  } catch (e) { /* ignore */ }
+  var rbtn = $("btn-retry");
+  if (deadRaw && retries > 0) {
+    rbtn.classList.remove("hidden");
+    rbtn.textContent = "重玩（剩 " + retries + " 次）";
+  } else {
+    rbtn.classList.add("hidden");
+  }
+  $("btn-snap").classList.toggle("hidden", !snapRaw);
 }
 
 /* =========================================================
@@ -151,13 +168,18 @@ function newGame() {
   }
   S = {
     attrs: attrs, flags: flags, inv: inv,
-    gongfa: 0, artifacts: [],
+    gongfa: 0, artifacts: [], spells: [],
     age: -1, cult: 0, realmIdx: 0, winAt: 0,
     lifespan: Math.round(D.lifespanBase + attrs["根骨"] * 0.2 + rand(0, 10)),
     alive: true, used: {}, cooldowns: {}, chains: {}, lastChoiceAge: -99,
     highlights: [], paused: false, waitingChoice: false,
     timer: null, pendingChoice: null,
     danUsed: 0, danStopUntil: 0, dgCd: {},
+    daoXin: 0, faction: null, renqing: 0, achievements: [],
+    sanShangUntil: 0, weakUntil: 0, pindan: 0, evil: 0, stats: {}, restUntil: 0,
+    chainFocus: null,
+    shop: { yr: {} },
+    npc: { friend: NPC_FRIEND_NAMES[rand(0, NPC_FRIEND_NAMES.length - 1)], lover: NPC_LOVER_NAMES[rand(0, NPC_LOVER_NAMES.length - 1)] },
     logs: [], domIdx: {}
   };
   if (talent.effect && talent.effect.artifact) {
@@ -166,7 +188,14 @@ function newGame() {
     }
     S._lastArts = null;
   }
+  if (talent.effect && talent.effect.spell) {
+    S.spells.push(talent.effect.spell);   // 机缘赠法：开局自带一门法术
+  }
   clearSave();
+  try {
+    window.localStorage.setItem(RETRY_KEY, "10");
+    window.localStorage.removeItem(DEAD_KEY);
+  } catch (e) { /* ignore */ }
 }
 
 function continueGame(sv) {
@@ -191,8 +220,25 @@ function continueGame(sv) {
     danUsed: sv.danUsed || 0, danStopUntil: sv.danStopUntil || 0, dgCd: sv.dgCd || {},
     logs: sv.logs || [], domIdx: {}
   };
-  // v1 通关档：清「功成名就」与 winAt，从筑基期继续修行
-  if (S.flags["功成名就"] && S.realmIdx === 1) {
+  // v3 新字段：旧档缺失一律默认值读取
+  S.spells = sv.spells || [];
+  S.daoXin = sv.daoXin || 0;
+  S.faction = sv.faction || null;
+  S.renqing = sv.renqing || 0;
+  S.achievements = sv.achievements || [];
+  S.sanShangUntil = sv.sanShangUntil || 0;
+  S.weakUntil = sv.weakUntil || 0;
+  S.pindan = sv.pindan || 0;
+  S.evil = sv.evil || 0;
+  S.stats = sv.stats || {};
+  S.restUntil = sv.restUntil || 0;
+  S.chainFocus = sv.chainFocus || null;
+  S.npc = sv.npc || { friend: NPC_FRIEND_NAMES[rand(0, NPC_FRIEND_NAMES.length - 1)], lover: NPC_LOVER_NAMES[rand(0, NPC_LOVER_NAMES.length - 1)] };
+  S.shop = sv.shop || { yr: {} };
+  // 法宝生命周期迁移：旧存档补入手年份
+  (S.artifacts || []).forEach(function (a) { if (a.gotAt === undefined) a.gotAt = S.age; });
+  // v3/v2/v1 通关档续玩：筑基档→筑基继续；结丹档→金丹继续；元婴档→v4 元婴期继续
+  if (S.flags["功成名就"] && (S.realmIdx === 1 || S.realmIdx === 2 || S.realmIdx === 3)) {
     delete S.flags["功成名就"];
     S.winAt = 0;
   }
@@ -201,7 +247,8 @@ function continueGame(sv) {
 /* =========================================================
  * 修行页渲染
  * ========================================================= */
-var SPEEDS = [1400, 700, 350];
+var SPEEDS = [2000, 1000, 500, 180, 90];   // ×1 ×2 ×4 ×8 ×16（×1 放慢，高倍档跳过平淡年）
+var SPEED_LABELS = [1, 2, 4, 8, 16];
 var speedIdx = 0;
 
 function renderLifeAttrs() {
@@ -225,12 +272,265 @@ function renderLifeAttrs() {
   ibox.appendChild(money);
   var gf = document.createElement("span");
   gf.className = "life-attr inv";
-  gf.innerHTML = "功法 <b>" + GONGFA_NAMES[S.gongfa] + "</b>";
+  gf.innerHTML = "功法 <b>" + gongfaLabel() + "</b>";
   ibox.appendChild(gf);
+  if (S.faction) {
+    var fc = document.createElement("span");
+    fc.className = "life-attr bp-faction";
+    fc.textContent = (S.faction.route === "zong" ? "青梧峰" : "散修盟") + " 弟子" + fmtNum(S.faction.disciples || 0) + " · 灵脉" + fmtNum(S.faction.spiritVeins || 0) + " · 情报" + fmtNum(S.faction.intel || 0);
+    ibox.appendChild(fc);
+  }
   renderBackpack();
 }
 
+/* 势力页签：弟子名册 / 灵脉 / 情报征伐板 */
+var CAMPAIGN_LINES = [
+  { prefix: "mx_", name: "玄阴教", endFlag: "灭总坛" },
+  { prefix: "yx_", name: "云梦泽老妖", endFlag: "斩大妖" },
+  { prefix: "cz_", name: "上古战场", endFlag: "古战场事了" }
+];
+
+/* 坊市页签：灵石→战力的常驻通道（v4.3）
+ * 法宝/法术玉简每年限购一次，丹药符咒不限（背包格限兜底）。 */
+var SHOP_STOCK = [
+  { pill: "聚气丹", price: 15, maxRealm: 0, desc: "炼气修为丹，每年自动服一枚" },
+  { pill: "凝元丹", price: 30, minRealm: 1, maxRealm: 1, desc: "筑基修为丹，每年自动服一枚" },
+  { pill: "回春丹", price: 60, minRealm: 1, desc: "养伤缩短一年；斗法中回血 30%" },
+  { pill: "玉骨丹", price: 150, minRealm: 2, desc: "养伤缩短两年；斗法中回血 55%" },
+  { pill: "符咒", price: 25, minRealm: 0, desc: "斗法中两张一掷，伤敌一截" },
+  { art: "法器", price: 120, minRealm: 1 },
+  { art: "灵器", price: 450, minRealm: 2 },
+  { art: "法宝", price: 1000, minRealm: 2 },
+  { spellType: "攻", price: 600, minRealm: 2 },
+  { spellType: "守", price: 600, minRealm: 2 },
+  { spellType: "变", price: 600, minRealm: 2 }
+];
+
+function renderBagShop() {
+  var pane = $("bag-pane-shop");
+  if (!pane) return;
+  pane.innerHTML = "";
+  S.shop = S.shop || { yr: {} };
+  var head = document.createElement("div");
+  head.className = "bag-sec-title";
+  head.textContent = "坊市常设 · 灵石 " + fmtNum(S.inv["灵石"] || 0);
+  pane.appendChild(head);
+  // 法宝生命周期：受创修复行（有受创法宝时出现，一键全修）
+  var damagedArts = S.artifacts.filter(function (a) { return a.damaged; });
+  if (damagedArts.length) {
+    var REP_PRICE = { "法器": 60, "灵器": 225, "法宝": 500 };
+    var repCost = 0;
+    damagedArts.forEach(function (a) { repCost += REP_PRICE[a.grade] || 60; });
+    var rrow = document.createElement("div");
+    rrow.className = "bag-row";
+    var rdesc = document.createElement("span");
+    rdesc.className = "bag-desc";
+    rdesc.textContent = "修复受创法宝 " + damagedArts.length + " 件 · 共 " + repCost + " 灵石";
+    rrow.appendChild(rdesc);
+    var rbtn = document.createElement("button");
+    rbtn.className = "bag-up-btn";
+    rbtn.type = "button";
+    rbtn.textContent = "修";
+    rbtn.disabled = (S.inv["灵石"] || 0) < repCost;
+    rbtn.addEventListener("click", function () {
+      if ((S.inv["灵石"] || 0) < repCost) return;
+      S.inv["灵石"] -= repCost;
+      damagedArts.forEach(function (a) { a.damaged = false; a.power = ART_POWER[a.grade] || a.power; });
+      log("坊市炼器炉开了一夜，" + damagedArts.length + " 件受创法宝灵光复明。（-" + repCost + " 灵石）", "choice-result");
+      renderLifeAttrs();
+      renderBagShop();
+      saveGame();
+    });
+    rrow.appendChild(rbtn);
+    pane.appendChild(rrow);
+  }
+  SHOP_STOCK.forEach(function (it) {
+    if (it.minRealm !== undefined && S.realmIdx < it.minRealm) return;
+    if (it.maxRealm !== undefined && S.realmIdx > it.maxRealm) return;
+    var row = document.createElement("div");
+    row.className = "bag-row";
+    var desc = document.createElement("span");
+    desc.className = "bag-desc";
+    var label, sub = "";
+    if (it.pill) { label = it.pill; sub = it.desc; }
+    else if (it.art) { label = it.art + "一件（随机）"; sub = "今年限购一件" + (S.shop.yr[it.art] === S.age ? " · 已购" : ""); }
+    else {
+      var owned = 0;
+      D.spells.forEach(function (sp) { if (sp.type === it.spellType && S.spells.indexOf(sp.id) >= 0) owned++; });
+      var total = 0;
+      D.spells.forEach(function (sp) { if (sp.type === it.spellType) total++; });
+      label = it.spellType + "系法术玉简";
+      sub = owned >= total ? "该系已学齐" : (S.shop.yr["sp" + it.spellType] === S.age ? "今年限购一门 · 已购" : "今年限购一门");
+    }
+    desc.textContent = label + " · " + it.price + " 灵石" + (sub ? "（" + sub + "）" : "");
+    row.appendChild(desc);
+    var btn = document.createElement("button");
+    btn.className = "bag-up-btn";
+    btn.type = "button";
+    btn.textContent = "买";
+    var disabled = (S.inv["灵石"] || 0) < it.price;
+    if (it.art && S.shop.yr[it.art] === S.age) disabled = true;
+    if (it.spellType) {
+      var left = D.spells.some(function (sp) { return sp.type === it.spellType && S.spells.indexOf(sp.id) < 0; });
+      if (!left || S.shop.yr["sp" + it.spellType] === S.age) disabled = true;
+    }
+    btn.disabled = disabled;
+    btn.addEventListener("click", function () { buyShopItem(it); });
+    row.appendChild(btn);
+    pane.appendChild(row);
+  });
+}
+
+function buyShopItem(it) {
+  S.shop = S.shop || { yr: {} };
+  if ((S.inv["灵石"] || 0) < it.price) return;
+  if (it.pill) {
+    S.inv["灵石"] -= it.price;
+    S.inv[it.pill] = clampInv((S.inv[it.pill] || 0) + 1);
+    log("坊市采买：" + it.pill + "一枚，" + it.price + " 灵石。", "");
+  } else if (it.art) {
+    if (S.shop.yr[it.art] === S.age) return;
+    S.inv["灵石"] -= it.price;
+    S.shop.yr[it.art] = S.age;
+    grantArtifact(it.art, true);
+    var a = S.artifacts[S.artifacts.length - 1];
+    log("坊市采买：重金 " + it.price + " 灵石，购得「" + (a ? a.name : it.art) + "」。", "choice-result");
+  } else if (it.spellType) {
+    if (S.shop.yr["sp" + it.spellType] === S.age) return;
+    var pool = D.spells.filter(function (sp) { return sp.type === it.spellType && S.spells.indexOf(sp.id) < 0; });
+    if (!pool.length) return;
+    S.inv["灵石"] -= it.price;
+    S.shop.yr["sp" + it.spellType] = S.age;
+    var sp = pool[rand(0, pool.length - 1)];
+    log("坊市采买：" + it.price + " 灵石购得「" + sp.name + "」玉简。", "choice-result");
+    applyEffect({ spell: sp.id });
+  }
+  renderLifeAttrs();
+  renderBagShop();
+  saveGame();
+}
+
+function renderBagFaction() {
+  var pane = $("bag-pane-faction");
+  if (!pane) return;
+  pane.innerHTML = "";
+  // 孤狼：金丹后无势力，仍显示老苗的情报征伐板（隐藏弟子/灵脉两节）
+  if (!S.faction && !(S.realmIdx >= 2 && S.flags["结丹"])) {
+    var none = document.createElement("div");
+    none.className = "bag-none";
+    none.textContent = "尚未开府。金丹之后，宗门与散修各有开府的门路。";
+    pane.appendChild(none);
+    return;
+  }
+  if (S.faction) migrateFaction();
+  var f = S.faction;
+  var mkTitle = function (t) {
+    var d = document.createElement("div");
+    d.className = "bag-sec-title";
+    d.textContent = t;
+    pane.appendChild(d);
+  };
+  var mkRow = function (left, right) {
+    var row = document.createElement("div");
+    row.className = "bag-row";
+    var l = document.createElement("span");
+    l.className = "bp-slot";
+    l.textContent = left;
+    row.appendChild(l);
+    if (right) {
+      var r = document.createElement("span");
+      r.className = "bag-desc";
+      r.textContent = right;
+      row.appendChild(r);
+    }
+    pane.appendChild(row);
+    return row;
+  };
+
+  // 弟子名册：有谁，善什么，顶什么用
+  if (f) {
+  mkTitle("弟子 " + f.dizi.length + " 人");
+  var ROLE_DESC = { "剑": "情报 +1/年", "丹": "每四年献丹", "器": "供奉 +8/年", "商": "供奉 +17/年" };
+  f.dizi.forEach(function (d) {
+    mkRow(d.name + " · 善" + d.role, ROLE_DESC[d.role] || "");
+  });
+
+  // 灵脉：有什么用，多大，能升级（块式布局，窄屏友好）
+  mkTitle("灵脉 " + f.veins.length + " 座");
+  f.veins.forEach(function (v, idx) {
+    var block = document.createElement("div");
+    block.className = "bag-block";
+    var top = document.createElement("div");
+    top.className = "bag-block-top";
+    var nm = document.createElement("span");
+    nm.className = "bp-slot";
+    nm.textContent = v.name + " · " + VEIN_SIZE[v.size];
+    top.appendChild(nm);
+    if (v.size < 3) {
+      var btn = document.createElement("button");
+      btn.className = "bag-up-btn";
+      btn.type = "button";
+      var cost = VEIN_UPGRADE[v.size];
+      btn.textContent = "升" + VEIN_SIZE[v.size + 1] + "（" + cost + "）";
+      btn.setAttribute("data-vein", String(idx));
+      if ((S.inv["灵石"] || 0) < cost) btn.disabled = true;
+      top.appendChild(btn);
+    }
+    var sub = document.createElement("div");
+    sub.className = "bag-desc";
+    sub.textContent = "修炼 +" + VEIN_SPD[v.size] + "/年 · 供奉 " + VEIN_PAY[v.size] + " 灵石/年";
+    block.appendChild(top);
+    block.appendChild(sub);
+    pane.appendChild(block);
+  });
+  }
+
+  // 情报征伐板：三条主线，各显示当前一环（数据驱动，读事件 board 字段）
+  mkTitle("情报 " + getIntel() + " · 征伐");
+  CAMPAIGN_LINES.forEach(function (line) {
+    var status, desc = "";
+    if (S.flags[line.endFlag]) { status = "已了断"; }
+    else {
+      var rings = D.events.filter(function (e) { return e.id && e.id.indexOf(line.prefix) === 0 && e.board; });
+      var cur = null;
+      for (var ri = 0; ri < rings.length; ri++) {
+        var e = rings[ri];
+        var done = (e.boardFlag && S.flags[e.boardFlag]) || (S.used[e.id] && !e.cooldown);
+        if (!done) { cur = e; break; }
+      }
+      if (!cur) { status = "已了断"; }
+      else {
+        var need = cur.cond && cur.cond.intel;
+        if (need && getIntel() < need) { status = "情报 " + getIntel() + "/" + need; desc = cur.board; }
+        else if (!condOk(cur.cond, S.attrs, S.flags, S.inv)) { status = "待机缘"; desc = cur.board; }
+        else { status = "可行动"; desc = cur.board; }
+      }
+    }
+    var block = document.createElement("div");
+    block.className = "bag-block";
+    var top = document.createElement("div");
+    top.className = "bag-block-top";
+    var nm = document.createElement("span");
+    nm.className = "bp-slot";
+    nm.textContent = line.name;
+    var st = document.createElement("span");
+    st.className = "bag-status" + (status === "已了断" ? " done" : status === "可行动" ? " go" : "");
+    st.textContent = status;
+    top.appendChild(nm);
+    top.appendChild(st);
+    block.appendChild(top);
+    if (desc) {
+      var sub = document.createElement("div");
+      sub.className = "bag-desc";
+      sub.textContent = desc;
+      block.appendChild(sub);
+    }
+    pane.appendChild(block);
+  });
+}
+
 function renderBackpack() {
+  // 背包页签：背包格数 + 丹药 + 天材地宝
   var box = $("life-bp");
   box.innerHTML = "";
   var used = bpSlotsUsed();
@@ -253,20 +553,89 @@ function renderBackpack() {
     chip.title = "天材地宝（不占背包格）";
     box.appendChild(chip);
   });
+
+  // 法术页签：具名 + 描述
+  var spPane = $("bag-pane-spell");
+  spPane.innerHTML = "";
+  var spells = S.spells || [];
+  var spLabel = document.createElement("span");
+  spLabel.className = "bp-label";
+  spLabel.textContent = "法术 " + spells.length + "/5";
+  spPane.appendChild(spLabel);
+  if (!spells.length) {
+    var spNone = document.createElement("div");
+    spNone.className = "bag-none";
+    spNone.textContent = "尚未习得法术。藏经阁、战役缴获、秘境传承、人情赠予皆有门路。";
+    spPane.appendChild(spNone);
+  }
+  spells.forEach(function (id) {
+    D.spells.forEach(function (s) {
+      if (s.id !== id) return;
+      var row = document.createElement("div");
+      row.className = "bag-row";
+      var nm = document.createElement("span");
+      nm.className = "bp-slot bp-spell";
+      nm.textContent = s.name + " · " + s.type;
+      var ds = document.createElement("span");
+      ds.className = "bag-desc";
+      ds.textContent = "战力 " + s.power + (s.trait ? " · " + s.trait : "") + "。" + s.desc;
+      row.appendChild(nm);
+      row.appendChild(ds);
+      spPane.appendChild(row);
+    });
+  });
+
+  // 法宝页签：具名列表（品级配色 + 攻/守/兼 + 战力）
+  var artPane = $("bag-pane-art");
+  artPane.innerHTML = "";
+  if (!S.artifacts.length) {
+    var artNone = document.createElement("div");
+    artNone.className = "bag-none";
+    artNone.textContent = "身无长物。坊市、炼器、秘境、人情，都是来路。";
+    artPane.appendChild(artNone);
+  }
   S.artifacts.forEach(function (a) {
+    var row = document.createElement("div");
+    row.className = "bag-row";
     var chip = document.createElement("span");
     chip.className = "bp-slot bp-art grade-" + a.grade;
     chip.textContent = a.name;
-    chip.title = a.grade + " · 战力 +" + a.power;
-    box.appendChild(chip);
+    var ds = document.createElement("span");
+    ds.className = "bag-desc";
+    var t = artifactType(a);
+    var dmgTag = a.damaged ? " · 受创" : "";
+    if (t === "攻") {
+      ds.textContent = a.grade + " · 攻击型 · 法宝攻 +" + Math.round(a.power * 1.2) + " · 战力 +" + a.power + dmgTag;
+    } else if (t === "守") {
+      ds.textContent = a.grade + " · 防御型 · 斗法减伤 +" + Math.round(a.power / 5 * 1.2) + " · 战力 +" + a.power + dmgTag;
+    } else {
+      ds.textContent = a.grade + " · 攻守兼备 · 法宝攻 +" + Math.round(a.power * 0.8) + " · 减伤 +" + Math.round(a.power / 5 * 0.8) + " · 战力 +" + a.power + dmgTag;
+    }
+    row.appendChild(chip);
+    row.appendChild(ds);
+    artPane.appendChild(row);
   });
-  var empty = BP_CAP - used;
-  for (var i = 0; i < empty && i < 6; i++) {
-    var slot = document.createElement("span");
-    slot.className = "bp-slot empty";
-    slot.textContent = "空";
-    box.appendChild(slot);
+
+  // 属性页签补充：道心/状态/势力详情
+  var ex = $("bag-extra");
+  ex.innerHTML = "";
+  var lines = [];
+  if (S.daoXin) lines.push("道心 " + S.daoXin);
+  if (S.renqing) lines.push("人情债 " + S.renqing);
+  if (S.age < (S.sanShangUntil || 0)) lines.push("养伤中（还剩 " + (S.sanShangUntil - S.age) + " 年）");
+  if (S.age < (S.weakUntil || 0)) lines.push("虚弱中（还剩 " + (S.weakUntil - S.age) + " 年）");
+  if (S.faction) {
+    var f = S.faction;
+    lines.push((f.route === "zong" ? "青梧峰" : "散修盟") + "：弟子 " + (f.disciples || 0) + " · 灵脉 " + (f.spiritVeins || 0) + " · 情报 " + (f.intel || 0) + " · 声望 " + (f.rep || 0));
   }
+  lines.forEach(function (t) {
+    var d = document.createElement("div");
+    d.className = "bag-extra-line";
+    d.textContent = t;
+    ex.appendChild(d);
+  });
+  renderBagFaction();
+  renderBagShop();
 }
 
 function renderRealm() {
@@ -383,6 +752,7 @@ function appendLog(item) {
 }
 
 function log(text, cls) {
+  text = npcT(text);   // 人物主线占位符：【挚友】【道侣名】→ 本局名字
   var li = S.logs.length;
   S.logs.push({ t: text, c: cls || "", a: S.age + STORY_BASE, p: (cls === "highlight" || cls === "death") ? 1 : 0 });
   S.domIdx[li] = 1;
@@ -405,6 +775,22 @@ function logDelta(effect) {
   if (effect.gongfa) parts.push("功法 +" + effect.gongfa + " 阶");
   if (effect.artifact) for (k in effect.artifact) {
     parts.push(k + " +" + effect.artifact[k]);
+  }
+  if (effect.artifactForce) for (k in effect.artifactForce) {
+    parts.push(k + " +" + effect.artifactForce[k]);
+  }
+  if (effect.artifactType) for (k in effect.artifactType) {
+    parts.push(effect.artifactType[k] + "·" + k + "型 +1");
+  }
+  if (effect.spell) parts.push("法术 +1");
+  if (effect.daoXin) parts.push("道心 +" + effect.daoXin);
+  if (effect.sanShang) parts.push("养伤 " + effect.sanShang + " 年");
+  if (effect.weak) parts.push("虚弱 " + effect.weak + " 年");
+  if (effect.renqing) parts.push(effect.renqing > 0 ? "人情 +" + effect.renqing : "人情 " + effect.renqing);
+  if (effect.factionDelta) for (k in effect.factionDelta) {
+    var fd = effect.factionDelta[k];
+    var fdNames = { disciples: "弟子", spiritVeins: "灵脉", intel: "情报", rep: "声望", rank: "职级" };
+    if (fd !== 0) parts.push((fdNames[k] || k) + (fd > 0 ? " +" + fd : " " + fd));
   }
   if (S._lastArts && S._lastArts.length) {
     parts.push("获得「" + S._lastArts.join("」「") + "」");
